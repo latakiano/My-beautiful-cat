@@ -3,28 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Himalayan Cat - Master Edition</title>
+    <title>Himalayan Cat - Final 20 Stages</title>
     <style>
-        body { margin: 0; overflow: hidden; background: #000; font-family: 'Segoe UI', Tahoma, sans-serif; touch-action: none; }
-        #ui { position: absolute; top: 15px; width: 100%; text-align: center; color: white; z-index: 10; pointer-events: none; }
-        .bar { width: 75%; height: 14px; background: rgba(255,255,255,0.1); margin: 8px auto; border-radius: 10px; border: 2px solid #fff; overflow: hidden; box-shadow: 0 0 15px #ff00cc; }
-        #fill { width: 0%; height: 100%; background: linear-gradient(90deg, #00ff00, #ffff00); transition: width 0.3s; }
-        #overlay { position: fixed; inset: 0; background: radial-gradient(circle, #200030 0%, #000 100%); display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; z-index: 1000; }
-        button { padding: 18px 50px; font-size: 26px; cursor: pointer; border-radius: 50px; background: linear-gradient(45deg, #ff00cc, #3333ff); color: white; border: 3px solid #fff; font-weight: bold; box-shadow: 0 0 30px #ff00cc; }
-        .info { color:#00f2ff; font-size: 18px; font-weight: bold; text-shadow: 0 0 5px #000; }
+        body { margin: 0; overflow: hidden; background: #000; font-family: sans-serif; touch-action: none; }
+        #ui { position: absolute; top: 10px; width: 100%; text-align: center; color: white; z-index: 10; pointer-events: none; }
+        .bar { width: 70%; height: 12px; background: #333; margin: 8px auto; border-radius: 6px; overflow: hidden; border: 1px solid #555; }
+        #fill { width: 0%; height: 100%; background: #00ff00; transition: width 0.2s; }
+        #overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; z-index: 1000; }
+        button { padding: 15px 40px; font-size: 22px; cursor: pointer; border-radius: 15px; background: #27ae60; color: white; border: none; font-weight: bold; }
+        .info { font-size: 14px; color: #f1c40f; }
     </style>
 </head>
 <body>
 
 <div id="ui">
-    <div id="lvlName" style="font-size: 24px; font-weight: bold; margin-bottom: 5px;">المرحلة 1</div>
+    <div id="lvlName" style="font-size: 20px; font-weight: bold;">المرحلة 1</div>
     <div class="bar"><div id="fill"></div></div>
-    <div class="info">🐟 الأسماك: <span id="score">0</span> | 🏁 المسافة: <span id="dist">1000</span>m</div>
+    <div class="info">🐟: <span id="score">0</span> | 🏁: <span id="dist">1000</span>m</div>
 </div>
 
 <div id="overlay">
-    <h1 id="msg" style="font-size: 35px; text-align: center; margin-bottom: 10px;">مغامرة الـ 20 مرحلة 🐾</h1>
-    <button onclick="setupStage()">انطلاق الآن ✅</button>
+    <h1 id="msg">مغامرة الـ 20 مرحلة</h1>
+    <button onclick="setupStage()">انطلقي الآن 🐾</button>
 </div>
 
 <canvas id="c"></canvas>
@@ -37,8 +37,9 @@
     function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     window.addEventListener('resize', resize); resize();
 
+    // القطة المطلوبة من الكود الثالث والوحوش
     const I = {
-        cat: 'https://cdn-icons-png.flaticon.com/128/616/616430.png',
+        cat: 'https://img.icons8.com/color/96/cat--v1.png',
         wolf: 'https://img.icons8.com/color/150/wolf.png',
         ghost: 'https://img.icons8.com/color/150/ghost.png',
         eagle: 'https://img.icons8.com/color/150/eagle.png',
@@ -52,27 +53,28 @@
     const imgs = {};
     for(let k in I) { imgs[k] = new Image(); imgs[k].src = I[k]; }
 
+    // الـ 20 مرحلة كاملة (تم دمج كل المراحل التي طلبتها)
     const stages = [
-        {n: "غابة الذئاب", m: "wolf", bg: "#0a0a0a", col: "#f1c40f", s: 6},
-        {n: "مقبرة الأشباح", m: "ghost", bg: "#1a002a", col: "#9b59b6", s: 7},
-        {n: "جبال النسور", m: "eagle", bg: "#001f3f", col: "#3498db", s: 8},
-        {n: "وادي الأفاعي", m: "snake", bg: "#1a0d00", col: "#e67e22", s: 9},
-        {n: "نهر التماسيح", m: "croc", bg: "#002b2b", col: "#1abc9c", s: 10},
-        {n: "عرين الأسد", m: "lion", bg: "#2d1400", col: "#e74c3c", s: 11},
-        {n: "كهف التنين", m: "dragon", bg: "#200000", col: "#ff0000", s: 12},
-        {n: "مملكة الجليد", m: "wolf", bg: "#f0faff", col: "#00d4ff", s: 13},
-        {n: "المصنع المظلم", m: "ghost", bg: "#111", col: "#95a5a6", s: 14},
-        {n: "عالم السحر", m: "dragon", bg: "#300", col: "#ff33f6", s: 15},
-        {n: "الغابة السوداء", m: "snake", bg: "#050", col: "#fff", s: 16},
-        {n: "فوهة البركان", m: "lion", bg: "#400", col: "#ff4500", s: 17},
-        {n: "كوكب الفضاء", m: "eagle", bg: "#001", col: "#0ff", s: 18},
-        {n: "الأعماق الزرقاء", m: "croc", bg: "#002", col: "#0055ff", s: 19},
-        {n: "المختبر السري", m: "ghost", bg: "#020", col: "#0f0", s: 20},
-        {n: "حافة السماء", m: "eagle", bg: "#222", col: "#eee", s: 21},
-        {n: "وادي النمور", m: "lion", bg: "#321", col: "#fa0", s: 22},
-        {n: "مملكة الجن", m: "dragon", bg: "#102", col: "#c0f", s: 23},
-        {n: "المتاهة", m: "wolf", bg: "#000", col: "#888", s: 24},
-        {n: "المرحلة النهائية", m: "lion", bg: "#202", col: "#f0c", s: 25}
+        {n: "غابة الذئاب", m: "wolf", bg: "#0a0a0a", col: "#FFFF00", s: 5},
+        {n: "مقبرة الأشباح", m: "ghost", bg: "#1a0033", col: "#00FF00", s: 6},
+        {n: "جبال النسور", m: "eagle", bg: "#001a33", col: "#FFFFFF", s: 7},
+        {n: "وادي الأفاعي", m: "snake", bg: "#0d1a0d", col: "#FF8C00", s: 8},
+        {n: "نهر التماسيح", m: "croc", bg: "#002b2b", col: "#40E0D0", s: 9},
+        {n: "عرين الأسد", m: "lion", bg: "#2c1e00", col: "#FF4500", s: 10},
+        {n: "كهف التنين", m: "dragon", bg: "#1a0500", col: "#FF0000", s: 11},
+        {n: "مملكة الجليد", m: "wolf", bg: "#f0faff", col: "#00d4ff", s: 12},
+        {n: "المصنع القديم", m: "ghost", bg: "#111", col: "#95a5a6", s: 13},
+        {n: "وادي النمور", m: "lion", bg: "#321", col: "#fa0", s: 14},
+        {n: "كوكب الغرباء", m: "ghost", bg: "#000", col: "#0f0", s: 15},
+        {n: "الأعماق المظلمة", m: "croc", bg: "#001", col: "#005", s: 16},
+        {n: "قمة النار", m: "dragon", bg: "#300", col: "#f00", s: 17},
+        {n: "الغابة السرية", m: "wolf", bg: "#020", col: "#0f0", s: 18},
+        {n: "مدينة الظل", m: "ghost", bg: "#000", col: "#555", s: 19},
+        {n: "الممر الضيق", m: "snake", bg: "#111", col: "#ff0", s: 20},
+        {n: "عرين الوحش", m: "lion", bg: "#200", col: "#f44", s: 21},
+        {n: "جبال الثلج", m: "wolf", bg: "#fff", col: "#0ff", s: 22},
+        {n: "بحر النيون", m: "croc", bg: "#002", col: "#f0f", s: 23},
+        {n: "النهاية الكبرى", m: "dragon", bg: "#000", col: "#fff", s: 25}
     ];
 
     let cur = 0, score = 0, dist = 1000, active = false, started = false, tick = 0;
@@ -82,74 +84,72 @@
         overlay.style.display = 'none';
         dist = 1000; p.y = canvas.height/2; p.v = 0; m.x = -150;
         obs = []; items = []; cabinX = -500;
-        document.getElementById('lvlName').innerText = `✨ ${stages[cur].n} (${cur+1}/20) ✨`;
+        document.getElementById('lvlName').innerText = stages[cur].n;
         active = true; started = false;
     };
 
-    function die() { active = false; document.getElementById('msg').innerText = "حاولي مرة أخرى"; overlay.style.display = 'flex'; }
+    function die() { active = false; document.getElementById('msg').innerText = "سقطتِ في " + stages[cur].n; overlay.style.display = 'flex'; }
 
-    function drawLegs(x, y, w, h, isCat) {
-        ctx.strokeStyle = isCat ? "#fff" : "rgba(255,255,255,0.5)";
-        ctx.lineWidth = 3;
-        let speed = started ? 0.3 : 0;
-        let legMove = Math.sin(tick * speed) * 10;
+    function drawLegs(x, y, w, h) {
+        ctx.strokeStyle = "#fff"; ctx.lineWidth = 2;
+        let legMove = Math.sin(tick * 0.3) * 8;
         ctx.beginPath();
-        ctx.moveTo(x + 15, y + h - 10); ctx.lineTo(x + 15 + legMove, y + h + 8);
-        ctx.moveTo(x + w - 15, y + h - 10); ctx.lineTo(x + w - 15 - legMove, y + h + 8);
+        // أرجل القطة بحركة ركض حقيقية
+        ctx.moveTo(x + 15, y + h - 10); ctx.lineTo(x + 15 + legMove, y + h + 5);
+        ctx.moveTo(x + w - 15, y + h - 10); ctx.lineTo(x + w - 15 - legMove, y + h + 5);
         ctx.stroke();
     }
 
     function loop() {
         const s = stages[cur];
-        let grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
-        grad.addColorStop(0, s.bg); grad.addColorStop(1, "#000");
-        ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = s.bg; ctx.fillRect(0, 0, canvas.width, canvas.height);
 
         if (active && started) {
-            tick += 1.5; p.v += 0.45; p.y += p.v; dist -= s.s / 10;
-            m.y += (p.y - m.y) * 0.05; m.x = Math.min(p.x - 120, m.x + 0.35);
+            tick += 1.2; p.v += 0.45; p.y += p.v; dist -= s.s / 10;
+            m.y += (p.y - m.y) * 0.05; m.x = Math.min(p.x - 110, m.x + 0.3);
 
             if (dist <= 0) {
                 if(cabinX === -500) cabinX = canvas.width;
                 cabinX -= s.s;
-                if(p.x > cabinX + 80) {
+                if(p.x > cabinX + 100) {
                     active = false; cur++;
                     if(cur >= stages.length) cur = 0;
-                    document.getElementById('msg').innerText = "إلى المرحلة التالية";
+                    document.getElementById('msg').innerText = "أحسنتِ! المرحلة التالية";
                     overlay.style.display = 'flex';
                 }
             }
 
-            if (dist > 50 && (obs.length === 0 || obs[obs.length-1].x < canvas.width - 380)) {
-                let gY = Math.random() * (canvas.height - 350) + 100;
-                obs.push({ x: canvas.width, y: gY, g: 270 });
-                items.push({ x: canvas.width + 50, y: gY + 135 });
+            if (dist > 50 && (obs.length === 0 || obs[obs.length-1].x < canvas.width - 350)) {
+                let h = Math.random() * (canvas.height - 300) + 50;
+                obs.push({ x: canvas.width, t: h, g: 260 });
+                items.push({ x: canvas.width + 50, y: h + 130 });
             }
 
             obs.forEach((o, i) => {
                 o.x -= s.s;
-                if(p.x+40 > o.x && p.x+5 < o.x+50 && (p.y+5 < o.y || p.y+45 > o.y+o.g)) die();
+                if(p.x+35 > o.x && p.x+10 < o.x+55 && (p.y+10 < o.t || p.y+40 > o.t+o.g)) die();
                 if(o.x < -100) obs.splice(i, 1);
             });
 
             items.forEach((f, i) => {
                 f.x -= s.s;
-                if(Math.hypot(p.x-f.x, p.y-f.y) < 55) { score += 100; items.splice(i, 1); }
+                if(Math.hypot(p.x-f.x, p.y-f.y) < 50) { score += 100; items.splice(i, 1); }
             });
 
-            if(p.y > canvas.height || p.y < -50 || p.x < m.x + 50) die();
+            if(p.y > canvas.height || p.y < -50 || p.x < m.x + 60) die();
             document.getElementById('fill').style.width = (1 - (dist/1000))*100 + "%";
             document.getElementById('dist').innerText = Math.max(0, Math.floor(dist));
             document.getElementById('score').innerText = score;
         }
 
         if(cabinX > -500) ctx.drawImage(imgs.cabin, cabinX, canvas.height/2-100, 180, 180);
-        drawLegs(m.x, m.y, 110, 110, false);
         ctx.drawImage(imgs[s.m], m.x, m.y, 110, 110);
-        obs.forEach(o => { ctx.fillStyle = s.col; ctx.fillRect(o.x, 0, 50, o.y); ctx.fillRect(o.x, o.y+o.g, 50, canvas.height); });
-        items.forEach(f => ctx.drawImage(imgs.fish, f.x, f.y, 45, 45));
-        drawLegs(p.x, p.y, 60, 60, true);
-        ctx.drawImage(imgs.cat, p.x, p.y, 60, 60);
+        obs.forEach(o => { ctx.fillStyle = s.col; ctx.fillRect(o.x, 0, 55, o.t); ctx.fillRect(o.x, o.t+o.g, 55, canvas.height); });
+        items.forEach(f => ctx.drawImage(imgs.fish, f.x, f.y, 40, 40));
+        
+        // رسم الأرجل والقطة المطلوبة
+        if(started) drawLegs(p.x, p.y, 55, 55);
+        ctx.drawImage(imgs.cat, p.x, p.y, 55, 55);
 
         requestAnimationFrame(loop);
     }
