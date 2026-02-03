@@ -3,27 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Himalayan Cat - 20 Stages Final</title>
+    <title>Himalayan Cat 20 - Final Stable</title>
     <style>
         body { margin: 0; overflow: hidden; background: #000; font-family: sans-serif; touch-action: none; }
-        #ui { position: absolute; top: 15px; width: 100%; text-align: center; color: white; z-index: 10; pointer-events: none; }
-        .bar { width: 75%; height: 16px; background: rgba(255,255,255,0.1); margin: 10px auto; border-radius: 10px; border: 2px solid #fff; overflow: hidden; }
-        #fill { width: 0%; height: 100%; background: #0f0; transition: width 0.3s; }
+        #ui { position: absolute; top: 10px; width: 100%; text-align: center; color: white; z-index: 10; pointer-events: none; }
+        .bar { width: 70%; height: 12px; background: #222; margin: 5px auto; border-radius: 10px; border: 1px solid #fff; overflow: hidden; }
+        #fill { width: 0%; height: 100%; background: #0f0; transition: width 0.2s; }
         #overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; z-index: 1000; }
-        button { padding: 20px 60px; font-size: 28px; cursor: pointer; border-radius: 50px; background: #ff00cc; color: white; border: none; font-weight: bold; box-shadow: 0 0 20px #ff00cc; }
+        button { padding: 15px 40px; font-size: 22px; cursor: pointer; border-radius: 30px; background: #ff00cc; color: white; border: none; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div id="ui">
-    <div id="lvlName" style="font-size: 28px; color: #0ff;">المرحلة 1</div>
+    <div id="lvlName" style="font-size: 20px;">المرحلة 1</div>
     <div class="bar"><div id="fill"></div></div>
-    <div style="font-size: 20px;">🐟 الأسماك: <span id="score">0</span></div>
+    <div style="font-size: 16px;">🐟: <span id="score">0</span></div>
 </div>
 
 <div id="overlay">
     <h1 id="msg">مغامرة الـ 20 مرحلة 🐾</h1>
-    <button onclick="setupStage()">انطلاق الآن</button>
+    <button onclick="startLvl()">انطلاق</button>
 </div>
 
 <canvas id="c"></canvas>
@@ -36,15 +36,10 @@
     function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     window.addEventListener('resize', resize); resize();
 
-    // صور داخلية مدمجة (لا تحتاج إنترنت)
-    const imgs = {
-        cat: new Image(), wolf: new Image(), fish: new Image()
-    };
-    // قطة بيضاء سيامي
+    // رسومات مدمجة (لا تعتمد على روابط)
+    const imgs = { cat: new Image(), wolf: new Image(), fish: new Image() };
     imgs.cat.src = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSI0MCIgZmlsbD0id2hpdGUiLz48Y2lyY2xlIGN4PSIzNSIgY3k9IjQwIiByPSI1IiBmaWxsPSJibHVlIi8+PGNpcmNsZSBjeD0iNjUiIGN5PSI0MCIgcj0iNSIgZmlsbD0iYmx1ZSIvPjxwYXRoIGQ9Ik0zMCAyMCBMNDAgMzAgTDIwIDMwIFoiIGZpbGw9ImdyYXkiLz48cGF0aCBkPSJNNzAgMjAgTDYwIDMwIEw4MCAzMCBaIiBmaWxsPSJncmF5Ii8+PC9zdmc+";
-    // وحش أحمر متوهج
     imgs.wolf.src = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cGF0aCBkPSJNNTAgMTAgTDEwIDkwIEw5MCA5MCBaIiBmaWxsPSJyZWQiLz48Y2lyY2xlIGN4PSIzNSIgY3k9IjcwIiByPSI1IiBmaWxsPSJ3aGl0ZSIvPjxjaXJjbGUgY3g9IjY1IiBjeT0iNzAiIHI9IjUiIGZpbGw9IndoaXRlIi8+PC9zdmc+";
-    // سمكة ذهبية
     imgs.fish.src = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48ZWxsaXBzZSBjeD0iNTAiIGN5PSI1MCIgcng9IjQwIiByeT0iMjAiIGZpbGw9ImdvbGQiLz48cGF0aCBkPSJNMTAgNTAgTDMwIDMwIEwzMCA3MCBaIiBmaWxsPSJnb2xkIi8+PC9zdmc+";
 
     const stages = [
@@ -53,17 +48,17 @@
         {n: "نهر التماسيح", col: "#1abc9c", s: 10}, {n: "عرين الأسد", col: "#e74c3c", s: 11},
         {n: "كهف التنين", col: "#ff0000", s: 12}, {n: "مملكة الجليد", col: "#00d4ff", s: 13},
         {n: "كوكب الفضائيين", col: "#00ffcc", s: 14}, {n: "بحر القروش", col: "#2980b9", s: 15},
-        {n: "مصنع الروبوت", col: "#95a5a6", s: 16}, {n: "وادي النمور", col: "#ffaa00", s: 17},
-        {n: "الغابة المظلمة", col: "#fff", s: 18}, {n: "قمة البركان", col: "#ff4500", s: 19},
-        {n: "عالم المجرات", col: "#00ffff", s: 20}, {n: "الصحراء", col: "#ffd700", s: 21},
-        {n: "المحيط", col: "#0055ff", s: 22}, {n: "المختبر", col: "#00ff00", s: 23},
-        {n: "الفضاء", col: "#cc00ff", s: 24}, {n: "المرحلة النهائية", col: "#ff00cc", s: 25}
+        {n: "مصنع الآليين", col: "#95a5a6", s: 16}, {n: "وادي النمور", col: "#ffaa00", s: 17},
+        {n: "الغابة المظلمة", col: "#fff", s: 18}, {n: "قمة النار", col: "#ff4500", s: 19},
+        {n: "عالم المجرات", col: "#0ff", s: 20}, {n: "الصحراء", col: "#ffd700", s: 21},
+        {n: "المحيط"، col: "#0055ff", s: 22}, {n: "المختبر", col: "#0f0", s: 23},
+        {n: "الفضاء"، col: "#cc00ff", s: 24}, {n: "النهاية الكبرى", col: "#ff00cc", s: 25}
     ];
 
     let cur = 0, score = 0, dist = 1000, active = false, started = false;
     let p = { x: 80, y: 300, v: 0 }, m = { x: -150, y: 300 }, obs = [], items = [];
 
-    window.setupStage = function() {
+    window.startLvl = function() {
         overlay.style.display = 'none';
         dist = 1000; p.y = canvas.height/2; p.v = 0; m.x = -150;
         obs = []; items = [];
@@ -71,7 +66,7 @@
         active = true; started = false;
     };
 
-    function die() { active = false; document.getElementById('msg').innerText = "انتبهي!"; overlay.style.display = 'flex'; }
+    function die() { active = false; overlay.style.display = 'flex'; }
 
     function loop() {
         ctx.fillStyle = "#000"; ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -83,18 +78,18 @@
 
             if (dist <= 0) {
                 cur++; if(cur >= stages.length) cur = 0;
-                die(); document.getElementById('msg').innerText = "أحسنتِ! التالي...";
+                die(); document.getElementById('msg').innerText = "رائع! التالي...";
             }
 
             if (obs.length === 0 || obs[obs.length-1].x < canvas.width - 350) {
                 let gY = Math.random() * (canvas.height - 300) + 50;
-                obs.push({ x: canvas.width, y: gY, g: 280 });
-                items.push({ x: canvas.width + 50, y: gY + 140 });
+                obs.push({ x: canvas.width, y: gY, g: 270 });
+                items.push({ x: canvas.width + 50, y: gY + 130 });
             }
 
             obs.forEach((o, i) => {
                 o.x -= s.s;
-                if(p.x+45 > o.x && p.x < o.x+50 && (p.y < o.y || p.y+40 > o.y+o.g)) die();
+                if(p.x+40 > o.x && p.x < o.x+50 && (p.y < o.y || p.y+40 > o.y+o.g)) die();
                 if(o.x < -100) obs.splice(i, 1);
             });
 
@@ -108,17 +103,17 @@
             document.getElementById('score').innerText = score;
         }
 
-        ctx.drawImage(imgs.wolf, m.x, m.y, 110, 110);
+        ctx.drawImage(imgs.wolf, m.x, m.y, 100, 100);
         obs.forEach(o => { ctx.fillStyle = s.col; ctx.fillRect(o.x, 0, 50, o.y); ctx.fillRect(o.x, o.y+o.g, 50, canvas.height); });
-        items.forEach(f => ctx.drawImage(imgs.fish, f.x, f.y, 45, 45));
-        ctx.drawImage(imgs.cat, p.x, p.y, 65, 65);
+        items.forEach(f => ctx.drawImage(imgs.fish, f.x, f.y, 40, 40));
+        ctx.drawImage(imgs.cat, p.x, p.y, 60, 60);
 
         requestAnimationFrame(loop);
     }
 
-    const start = () => { if(active) started = true; p.v = -8.5; };
+    const start = (e) => { if(active) { started = true; p.v = -8.5; if(e.type === 'touchstart') e.preventDefault(); } };
     window.addEventListener('mousedown', start);
-    window.addEventListener('touchstart', (e) => { e.preventDefault(); start(); }, {passive: false});
+    window.addEventListener('touchstart', start, {passive: false});
     loop();
 </script>
 </body>
