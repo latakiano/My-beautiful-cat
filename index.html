@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Himalayan Cat - 20 Stages Fixed</title>
+    <title>Himalayan Cat - 20 Stages Final</title>
     <style>
         body { margin: 0; overflow: hidden; background: #000; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; touch-action: none; }
         #ui { position: absolute; top: 15px; width: 100%; text-align: center; color: white; z-index: 10; pointer-events: none; text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff; }
@@ -38,7 +38,7 @@
     function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     window.addEventListener('resize', resize); resize();
 
-    // روابط عالية الجودة (HD) لضمان عدم الغبش كما طلبت
+    // صور عالية الجودة لضمان الوضوح التام
     const I = {
         cat: 'https://cdn-icons-png.flaticon.com/512/6824/6824410.png',
         wolf: 'https://cdn-icons-png.flaticon.com/512/2353/2353678.png',
@@ -50,6 +50,9 @@
         dragon: 'https://cdn-icons-png.flaticon.com/512/2497/2497607.png',
         bear: 'https://cdn-icons-png.flaticon.com/512/2353/2353681.png',
         alien: 'https://cdn-icons-png.flaticon.com/512/1946/1946467.png',
+        shark: 'https://cdn-icons-png.flaticon.com/512/2056/2056345.png',
+        robot: 'https://cdn-icons-png.flaticon.com/512/2056/2056360.png',
+        tiger: 'https://cdn-icons-png.flaticon.com/512/616/616421.png',
         fish: 'https://cdn-icons-png.flaticon.com/512/603/603310.png',
         cabin: 'https://cdn-icons-png.flaticon.com/512/2237/2237837.png'
     };
@@ -57,7 +60,7 @@
     const imgs = {};
     Object.keys(I).forEach(k => { imgs[k] = new Image(); imgs[k].src = I[k]; });
 
-    // الـ 20 مرحلة كاملة بنفس أسلوبك في الكود الأصلي
+    // الـ 20 مرحلة كاملة بالترتيب والألوان والوحوش المتنوعة
     const stages = [
         { n: "غابة الذئاب الصفراء", m: "wolf", bg: "#050505", col: "#f1c40f", s: 6 },
         { n: "مقبرة الأشباح البنفسجية", m: "ghost", bg: "#1a002a", col: "#9b59b6", s: 7 },
@@ -68,17 +71,17 @@
         { n: "كهف التنين الأحمر", m: "dragon", bg: "#200000", col: "#ff0000", s: 12 },
         { n: "مملكة الجليد اللامعة", m: "bear", bg: "#f0faff", col: "#00d4ff", s: 13 },
         { n: "الفضاء الفسفوري العجيب", m: "alien", bg: "#0a0015", col: "#00ffcc", s: 14 },
-        { n: "محيط القروش الزرقاء", m: "lion", bg: "#000a1a", col: "#2980b9", s: 15 },
-        { n: "مصنع الآليين", m: "bear", bg: "#1a1a1a", col: "#2ecc71", s: 16 },
-        { n: "عالم الخيال الوردي", m: "alien", bg: "#1a001a", col: "#ff33f6", s: 17 },
-        { n: "الغابة المظلمة", m: "wolf", bg: "#000", col: "#ffffff", s: 18 },
-        { n: "بركان النيران", m: "dragon", bg: "#2a0000", col: "#ff4500", s: 19 },
-        { n: "محطة المجرات", m: "alien", bg: "#000022", col: "#00ffff", s: 20 },
-        { n: "وادي الظلال", m: "ghost", bg: "#0d0d0d", col: "#808080", s: 21 },
-        { n: "الصحراء الذهبية", m: "lion", bg: "#2a1a00", col: "#ffd700", s: 22 },
-        { n: "مختبر الكائنات", m: "bear", bg: "#001a00", col: "#00ff00", s: 23 },
-        { n: "سماء الرعد", m: "eagle", bg: "#00001a", col: "#ffffff", s: 24 },
-        { n: "المرحلة النهائية الكبرى", m: "dragon", bg: "#000", col: "#ff00cc", s: 26 }
+        { n: "محيط القروش العميق", m: "shark", bg: "#001020", col: "#3498db", s: 15 },
+        { n: "مصنع الآليين المعادن", m: "robot", bg: "#1a1a1a", col: "#95a5a6", s: 16 },
+        { n: "وادي النمور الشرسة", m: "tiger", bg: "#2c1e00", col: "#f39c12", s: 17 },
+        { n: "غابة الأشباح المفقودة", m: "ghost", bg: "#0d001a", col: "#8e44ad", s: 18 },
+        { n: "قمة التنين الذهبي", m: "dragon", bg: "#1a1a00", col: "#f1c40f", s: 19 },
+        { n: "كهف الوحش المجهول", m: "alien", bg: "#000", col: "#e74c3c", s: 20 },
+        { n: "شلالات التماسيح", m: "croc", bg: "#001a1a", col: "#1abc9c", s: 21 },
+        { n: "صحراء الأسود", m: "lion", bg: "#1a0a00", col: "#d35400", s: 22 },
+        { n: "محطة الفضاء الدولية", m: "robot", bg: "#000033", col: "#3498db", s: 23 },
+        { n: "نار البركان الخامد", m: "dragon", bg: "#200", col: "#c0392b", s: 24 },
+        { n: "مواجهة النهاية الكبرى", m: "alien", bg: "#000", col: "#fff", s: 25 }
     ];
 
     let cur = 0, score = 0, dist = 1000, active = false, started = false;
@@ -109,7 +112,7 @@
                 cabinX -= s.s;
                 if(p.x > cabinX + 60) {
                     active = false; cur++;
-                    if(cur >= stages.length) { msg.innerHTML = "🏆 ختمتِ اللعبة يا بطلة! 🏆"; cur = 0; score = 0;}
+                    if(cur >= stages.length) { msg.innerHTML = "🏆 مبروك يا رهف! ختمتِ الـ 20 مرحلة! 🏆"; cur = 0; score = 0;}
                     else { msg.innerHTML = "🏡 وصلنا للكوخ الملون!"; }
                     overlay.style.display = 'flex';
                 }
