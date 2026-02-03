@@ -3,27 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Himalayan Cat 20 - Final Stable</title>
+    <title>Himalayan Cat - No More Deception</title>
     <style>
         body { margin: 0; overflow: hidden; background: #000; font-family: sans-serif; touch-action: none; }
         #ui { position: absolute; top: 10px; width: 100%; text-align: center; color: white; z-index: 10; pointer-events: none; }
         .bar { width: 70%; height: 12px; background: #222; margin: 5px auto; border-radius: 10px; border: 1px solid #fff; overflow: hidden; }
         #fill { width: 0%; height: 100%; background: #0f0; transition: width 0.2s; }
-        #overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; z-index: 1000; }
-        button { padding: 15px 40px; font-size: 22px; cursor: pointer; border-radius: 30px; background: #ff00cc; color: white; border: none; font-weight: bold; }
+        #overlay { position: fixed; inset: 0; background: #000; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; z-index: 1000; }
+        #startBtn { padding: 15px 40px; font-size: 22px; cursor: pointer; border-radius: 30px; background: #ff00cc; color: white; border: none; font-weight: bold; display: none; }
+        #loader { font-size: 20px; color: #0ff; }
     </style>
 </head>
 <body>
 
 <div id="ui">
-    <div id="lvlName" style="font-size: 20px;">المرحلة 1</div>
+    <div id="lvlName" style="font-size: 20px;">جاري التحميل...</div>
     <div class="bar"><div id="fill"></div></div>
     <div style="font-size: 16px;">🐟: <span id="score">0</span></div>
 </div>
 
 <div id="overlay">
     <h1 id="msg">مغامرة الـ 20 مرحلة 🐾</h1>
-    <button onclick="startLvl()">انطلاق</button>
+    <div id="loader">انتظري ثواني... جاري تحضير القطة 🐱</div>
+    <button id="startBtn" onclick="startLvl()">انطلاق الآن ✅</button>
 </div>
 
 <canvas id="c"></canvas>
@@ -32,15 +34,33 @@
     const canvas = document.getElementById('c');
     const ctx = canvas.getContext('2d');
     const overlay = document.getElementById('overlay');
+    const startBtn = document.getElementById('startBtn');
+    const loader = document.getElementById('loader');
 
     function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     window.addEventListener('resize', resize); resize();
 
-    // رسومات مدمجة (لا تعتمد على روابط)
+    // نظام التحميل الصادق
     const imgs = { cat: new Image(), wolf: new Image(), fish: new Image() };
-    imgs.cat.src = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSI0MCIgZmlsbD0id2hpdGUiLz48Y2lyY2xlIGN4PSIzNSIgY3k9IjQwIiByPSI1IiBmaWxsPSJibHVlIi8+PGNpcmNsZSBjeD0iNjUiIGN5PSI0MCIgcj0iNSIgZmlsbD0iYmx1ZSIvPjxwYXRoIGQ9Ik0zMCAyMCBMNDAgMzAgTDIwIDMwIFoiIGZpbGw9ImdyYXkiLz48cGF0aCBkPSJNNzAgMjAgTDYwIDMwIEw4MCAzMCBaIiBmaWxsPSJncmF5Ii8+PC9zdmc+";
-    imgs.wolf.src = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cGF0aCBkPSJNNTAgMTAgTDEwIDkwIEw5MCA5MCBaIiBmaWxsPSJyZWQiLz48Y2lyY2xlIGN4PSIzNSIgY3k9IjcwIiByPSI1IiBmaWxsPSJ3aGl0ZSIvPjxjaXJjbGUgY3g9IjY1IiBjeT0iNzAiIHI9IjUiIGZpbGw9IndoaXRlIi8+PC9zdmc+";
-    imgs.fish.src = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48ZWxsaXBzZSBjeD0iNTAiIGN5PSI1MCIgcng9IjQwIiByeT0iMjAiIGZpbGw9ImdvbGQiLz48cGF0aCBkPSJNMTAgNTAgTDMwIDMwIEwzMCA3MCBaIiBmaWxsPSJnb2xkIi8+PC9zdmc+";
+    let loadedCount = 0;
+    const totalImgs = 3;
+
+    function imgLoaded() {
+        loadedCount++;
+        if(loadedCount === totalImgs) {
+            loader.style.display = 'none';
+            startBtn.style.display = 'block';
+        }
+    }
+
+    imgs.cat.onload = imgLoaded;
+    imgs.wolf.onload = imgLoaded;
+    imgs.fish.onload = imgLoaded;
+
+    // صور مضمونة الوضوح
+    imgs.cat.src = "https://cdn-icons-png.flaticon.com/512/6824/6824410.png";
+    imgs.wolf.src = "https://cdn-icons-png.flaticon.com/512/2353/2353678.png";
+    imgs.fish.src = "https://cdn-icons-png.flaticon.com/512/603/603310.png";
 
     const stages = [
         {n: "غابة الذئاب", col: "#f1c40f", s: 6}, {n: "مقبرة الأشباح", col: "#9b59b6", s: 7},
@@ -78,7 +98,7 @@
 
             if (dist <= 0) {
                 cur++; if(cur >= stages.length) cur = 0;
-                die(); document.getElementById('msg').innerText = "رائع! التالي...";
+                die(); document.getElementById('msg').innerText = "رائع! المرحلة التالية";
             }
 
             if (obs.length === 0 || obs[obs.length-1].x < canvas.width - 350) {
