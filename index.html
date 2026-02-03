@@ -3,29 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Cat Challenge - 20 Stages</title>
+    <title>Cat Challenge Pro - 20 Stages</title>
     <style>
         body { margin: 0; overflow: hidden; background: #000; font-family: 'Segoe UI', sans-serif; touch-action: none; }
         #ui { position: absolute; top: 10px; width: 100%; text-align: center; color: white; z-index: 10; pointer-events: none; }
         .bar { width: 70%; height: 12px; background: rgba(255,255,255,0.1); margin: 5px auto; border-radius: 10px; border: 1px solid #fff; overflow: hidden; }
-        #fill { width: 0%; height: 100%; background: linear-gradient(90deg, #00ff00, #ffff00); }
-        #overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; z-index: 1000; text-align: center; }
-        button { padding: 15px 40px; font-size: 22px; cursor: pointer; border-radius: 30px; background: #27ae60; color: white; border: none; font-weight: bold; box-shadow: 0 5px 15px rgba(39,174,96,0.4); }
-        .stats { font-size: 16px; color: #0ff; margin-top: 5px; }
+        #fill { width: 0%; height: 100%; background: linear-gradient(90deg, #0f0, #ff0); }
+        #overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; z-index: 1000; }
+        button { padding: 15px 40px; font-size: 24px; cursor: pointer; border-radius: 30px; background: #e74c3c; color: white; border: none; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div id="ui">
-    <div id="lvlName" style="font-size: 20px; font-weight: bold;">المرحلة 1</div>
+    <div id="lvlName" style="font-size: 22px; font-weight: bold; color: #f1c40f;"></div>
     <div class="bar"><div id="fill"></div></div>
-    <div class="stats">🐟: <span id="score">0</span> | 🏁: <span id="dist">1000</span>m</div>
+    <div style="font-size: 14px;">🐟: <span id="score">0</span> | 🏁: <span id="dist">1000</span>m</div>
 </div>
 
 <div id="overlay">
-    <h1 id="msg">مغامرة الـ 20 مرحلة</h1>
-    <p id="subMsg">تجاوز المراحل لتصبح الأسطورة!</p>
-    <button onclick="startGame()">ابدأ التحدي 🐾</button>
+    <h1 id="msg">مغامرة الـ 20 مرحلة 🐾</h1>
+    <p id="subMsg">مستعد للتحدي؟</p>
+    <button onclick="initGame()">دخول اللعبة ✅</button>
 </div>
 
 <canvas id="c"></canvas>
@@ -35,10 +34,28 @@
     const ctx = canvas.getContext('2d');
     const overlay = document.getElementById('overlay');
 
+    // --- نظام الصوت المدمج ---
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    let audioCtx;
+    function playSound(freq, type, duration) {
+        if(!audioCtx) audioCtx = new AudioCtx();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(); osc.stop(audioCtx.currentTime + duration);
+    }
+
+    const playWin = () => { [523, 659, 783, 1046].forEach((f, i) => setTimeout(() => playSound(f, 'triangle', 0.5), i * 150)); };
+    const playJump = () => playSound(400, 'sine', 0.1);
+    const playHurry = () => { if(Math.random() > 0.9) playSound(150, 'sawtooth', 0.1); };
+
     function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     window.addEventListener('resize', resize); resize();
 
-    // القطة الأصلية والوحوش
     const I = {
         cat: 'https://img.icons8.com/color/96/cat--v1.png',
         wolf: 'https://img.icons8.com/color/150/wolf.png',
@@ -54,35 +71,33 @@
     const imgs = {};
     for(let k in I) { imgs[k] = new Image(); imgs[k].src = I[k]; }
 
-    // الـ 20 مرحلة كاملة مع صعوبة قصوى في الأواخر
     const stages = [
-        {n: "غابة الذئاب", m: "wolf", bg: "#0a0a0a", col: "#f1c40f", s: 6, gap: 280},
-        {n: "مقبرة الأشباح", m: "ghost", bg: "#1a002a", col: "#9b59b6", s: 7, gap: 270},
-        {n: "جبال النسور", m: "eagle", bg: "#001f3f", col: "#3498db", s: 8, gap: 265},
-        {n: "وادي الأفاعي", m: "snake", bg: "#1a0d00", col: "#e67e22", s: 9, gap: 260},
-        {n: "نهر التماسيح", m: "croc", bg: "#002b2b", col: "#1abc9c", s: 10, gap: 255},
-        {n: "عرين الأسد", m: "lion", bg: "#2d1400", col: "#e74c3c", s: 11, gap: 250},
-        {n: "كهف التنين", m: "dragon", bg: "#200000", col: "#ff0000", s: 11.5, gap: 245},
-        {n: "مملكة الجليد", m: "wolf", bg: "#eefaff", col: "#00d4ff", s: 12, gap: 240},
-        {n: "المصنع المظلم", m: "ghost", bg: "#111", col: "#95a5a6", s: 12.5, gap: 235},
-        {n: "عالم السحر", m: "dragon", bg: "#301", col: "#ff33f6", s: 13, gap: 230},
-        {n: "الغابة السوداء", m: "snake", bg: "#050", col: "#fff", s: 13.5, gap: 225},
-        {n: "فوهة البركان", m: "lion", bg: "#400", col: "#ff4500", s: 14, gap: 220},
-        {n: "كوكب الفضاء", m: "eagle", bg: "#001", col: "#0ff", s: 14.5, gap: 215},
-        {n: "الأعماق الزرقاء", m: "croc", bg: "#002", col: "#0055ff", s: 15, gap: 210},
-        {n: "المختبر السري", m: "ghost", bg: "#020", col: "#0f0", s: 15.5, gap: 205},
-        {n: "حافة السماء", m: "eagle", bg: "#222", col: "#eee", s: 16, gap: 200},
-        {n: "وادي النمور", m: "lion", bg: "#321", col: "#fa0", s: 16.5, gap: 195},
-        // المراحل الثلاث الأخيرة (صعوبة قصوى)
-        {n: "مملكة الجن (صعب جداً)", m: "dragon", bg: "#102", col: "#c0f", s: 18, gap: 180},
-        {n: "المتاهة المظلمة (مستحيل)", m: "wolf", bg: "#000", col: "#f00", s: 20, gap: 170},
-        {n: "المرحلة النهائية (تحدي الدولارين)", m: "lion", bg: "#101", col: "#fff", s: 22, gap: 160}
+        {n: "غابة الذئاب", m: "wolf", bg: "#0a0a0a", col: "#FFFF00", s: 6},
+        {n: "مقبرة الأشباح", m: "ghost", bg: "#1a002a", col: "#00FF00", s: 7},
+        {n: "جبال النسور", m: "eagle", bg: "#001f3f", col: "#FFFFFF", s: 8},
+        {n: "وادي الأفاعي", m: "snake", bg: "#1a0d00", col: "#FF8C00", s: 9},
+        {n: "نهر التماسيح", m: "croc", bg: "#002b2b", col: "#40E0D0", s: 10},
+        {n: "عرين الأسد", m: "lion", bg: "#2d1400", col: "#FF4500", s: 11},
+        {n: "كهف التنين", m: "dragon", bg: "#200000", col: "#FF0000", s: 12},
+        {n: "مملكة الجليد", m: "wolf", bg: "#f0faff", col: "#00d4ff", s: 13},
+        {n: "المصنع المظلم", m: "ghost", bg: "#111", col: "#95a5a6", s: 14},
+        {n: "عالم السحر", m: "dragon", bg: "#301", col: "#ff33f6", s: 15},
+        {n: "الغابة السوداء", m: "snake", bg: "#050", col: "#fff", s: 16},
+        {n: "فوهة البركان", m: "lion", bg: "#400", col: "#ff4500", s: 17},
+        {n: "كوكب الفضاء", m: "eagle", bg: "#001", col: "#0ff", s: 18},
+        {n: "الأعماق الزرقاء", m: "croc", bg: "#002", col: "#0055ff", s: 19},
+        {n: "المختبر السري", m: "ghost", bg: "#020", col: "#0f0", s: 20},
+        {n: "حافة السماء", m: "eagle", bg: "#222", col: "#eee", s: 21},
+        {n: "وادي النمور", m: "lion", bg: "#321", col: "#fa0", s: 22},
+        {n: "مملكة الجن", m: "dragon", bg: "#102", col: "#c0f", s: 23, gap: 190},
+        {n: "المتاهة المظلمة", m: "wolf", bg: "#000", col: "#f00", s: 25, gap: 170},
+        {n: "تحدي الدولارين", m: "lion", bg: "#101", col: "#fff", s: 28, gap: 150}
     ];
 
     let cur = 0, score = 0, dist = 1000, active = false, started = false, tick = 0;
     let p = { x: 100, y: 0, v: 0 }, m = { x: -150, y: 0 }, obs = [], items = [], cabinX = -500;
 
-    window.startGame = function() {
+    window.initGame = function() {
         overlay.style.display = 'none';
         dist = 1000; p.y = canvas.height/2; p.v = 0; m.x = -150;
         obs = []; items = []; cabinX = -500;
@@ -90,21 +105,16 @@
         active = true; started = false;
     };
 
-    function die() { active = false; document.getElementById('msg').innerText = "خسرت في " + stages[cur].n; overlay.style.display = 'flex'; }
+    function die() { active = false; playSound(100, 'sawtooth', 0.5); document.getElementById('msg').innerText = "سقطت القطة!"; overlay.style.display = 'flex'; }
 
-    // تحريك الأرجل بنظام المفاصل للقطة
     function drawCatLegs(x, y, w, h, t) {
         if(!started) return;
         ctx.strokeStyle = "#fff"; ctx.lineWidth = 3;
-        let speed = 0.4;
-        for(let i=0; i<2; i++) {
-            let off = i * Math.PI;
-            let swing = Math.sin(t * speed + off) * 12;
-            ctx.beginPath();
-            ctx.moveTo(x + (i==0?15:w-15), y + h - 10);
-            ctx.lineTo(x + (i==0?15:w-15) + swing, y + h + 5);
-            ctx.stroke();
-        }
+        let legMove = Math.sin(t * 0.4) * 10;
+        ctx.beginPath();
+        ctx.moveTo(x + 15, y + h - 10); ctx.lineTo(x + 15 + legMove, y + h + 5);
+        ctx.moveTo(x + w - 15, y + h - 10); ctx.lineTo(x + w - 15 - legMove, y + h + 5);
+        ctx.stroke();
     }
 
     function loop() {
@@ -112,24 +122,26 @@
         ctx.fillStyle = s.bg; ctx.fillRect(0, 0, canvas.width, canvas.height);
 
         if (active && started) {
-            tick += 1; p.v += 0.5; p.y += p.v; dist -= s.s / 10;
+            tick += 1; p.v += 0.5; p.y += p.v; dist -= s.s / 8;
             m.y += (p.y - m.y) * 0.06; m.x = Math.min(p.x - 120, m.x + 0.4);
+            playHurry(); // موسيقى الخوف (نغمات عشوائية منخفضة)
 
             if (dist <= 0) {
-                if(cabinX === -500) cabinX = canvas.width;
+                if(cabinX === -500) { cabinX = canvas.width; playWin(); }
                 cabinX -= s.s;
                 if(p.x > cabinX + 100) {
                     active = false; cur++;
-                    if(cur >= stages.length) { cur = 0; document.getElementById('msg').innerText = "🏆 أنت بطل حقيقي! فزت بالجائزة 🏆"; }
-                    else { document.getElementById('msg').innerText = "تم اجتياز المرحلة!"; }
+                    if(cur >= stages.length) cur = 0;
+                    document.getElementById('msg').innerText = "رائع! إلى المرحلة التالية";
                     overlay.style.display = 'flex';
                 }
             }
 
-            if (dist > 50 && (obs.length === 0 || obs[obs.length-1].x < canvas.width - 350)) {
-                let th = Math.random() * (canvas.height - s.gap - 100) + 50;
-                obs.push({ x: canvas.width, t: th, g: s.gap });
-                items.push({ x: canvas.width + 50, y: th + s.gap/2 });
+            if (dist > 50 && (obs.length === 0 || obs[obs.length-1].x < canvas.width - 320)) {
+                let gap = s.gap || 250;
+                let th = Math.random() * (canvas.height - gap - 100) + 50;
+                obs.push({ x: canvas.width, t: th, g: gap });
+                items.push({ x: canvas.width + 50, y: th + gap/2 });
             }
 
             obs.forEach((o, i) => {
@@ -140,7 +152,7 @@
 
             items.forEach((f, i) => {
                 f.x -= s.s;
-                if(Math.hypot(p.x-f.x, p.y-f.y) < 50) { score += 100; items.splice(i, 1); }
+                if(Math.hypot(p.x-f.x, p.y-f.y) < 50) { score += 100; items.splice(i, 1); playSound(800, 'sine', 0.05); }
             });
 
             if(p.y > canvas.height || p.y < -50 || p.x < m.x + 50) die();
@@ -153,14 +165,13 @@
         ctx.drawImage(imgs[s.m], m.x, m.y, 110, 110);
         obs.forEach(o => { ctx.fillStyle = s.col; ctx.fillRect(o.x, 0, 50, o.t); ctx.fillRect(o.x, o.t+o.g, 50, canvas.height); });
         items.forEach(f => ctx.drawImage(imgs.fish, f.x, f.y, 40, 40));
-        
         drawCatLegs(p.x, p.y, 55, 55, tick);
         ctx.drawImage(imgs.cat, p.x, p.y, 55, 55);
 
         requestAnimationFrame(loop);
     }
 
-    const tap = (e) => { if(active) { started = true; p.v = -8.5; if(e.type === 'touchstart') e.preventDefault(); } };
+    const tap = (e) => { if(active) { started = true; p.v = -8.5; playJump(); if(e.type === 'touchstart') e.preventDefault(); } };
     window.addEventListener('mousedown', tap);
     window.addEventListener('touchstart', tap, {passive: false});
     loop();
