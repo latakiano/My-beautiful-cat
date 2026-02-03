@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Himalayan Cat - 20 Stages Final Edition</title>
+    <title>Himalayan Cat - Master Edition</title>
     <style>
         body { margin: 0; overflow: hidden; background: #000; font-family: 'Segoe UI', Tahoma, sans-serif; touch-action: none; }
         #ui { position: absolute; top: 15px; width: 100%; text-align: center; color: white; z-index: 10; pointer-events: none; }
@@ -24,7 +24,6 @@
 
 <div id="overlay">
     <h1 id="msg" style="font-size: 35px; text-align: center; margin-bottom: 10px;">مغامرة الـ 20 مرحلة 🐾</h1>
-    <p id="subMsg" style="color: #0ff; margin-bottom: 25px;">تجنبي الوحوش وصلي للكوخ بسلام!</p>
     <button onclick="setupStage()">انطلاق الآن ✅</button>
 </div>
 
@@ -38,7 +37,6 @@
     function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     window.addEventListener('resize', resize); resize();
 
-    // 1. صور الكود الخاص بك (القطة الطبيعية والوحوش)
     const I = {
         cat: 'https://cdn-icons-png.flaticon.com/128/616/616430.png',
         wolf: 'https://img.icons8.com/color/150/wolf.png',
@@ -54,7 +52,6 @@
     const imgs = {};
     for(let k in I) { imgs[k] = new Image(); imgs[k].src = I[k]; }
 
-    // 2. الـ 20 مرحلة كاملة ببياناتها
     const stages = [
         {n: "غابة الذئاب", m: "wolf", bg: "#0a0a0a", col: "#f1c40f", s: 6},
         {n: "مقبرة الأشباح", m: "ghost", bg: "#1a002a", col: "#9b59b6", s: 7},
@@ -89,17 +86,16 @@
         active = true; started = false;
     };
 
-    function die() { active = false; document.getElementById('msg').innerText = "أوه! انتبهي 💥"; overlay.style.display = 'flex'; }
+    function die() { active = false; document.getElementById('msg').innerText = "حاولي مرة أخرى"; overlay.style.display = 'flex'; }
 
-    // 3. أرجل القطة الانسيابية (ليست كالحمار)
-    function drawCatLegs(x, y, w, h) {
-        ctx.strokeStyle = "#fff"; ctx.lineWidth = 3;
-        let speed = started ? 0.25 : 0;
-        let legMove = Math.sin(tick * speed) * 8;
-        // الأرجل الأمامية والخلفية بحركة قطة
+    function drawLegs(x, y, w, h, isCat) {
+        ctx.strokeStyle = isCat ? "#fff" : "rgba(255,255,255,0.5)";
+        ctx.lineWidth = 3;
+        let speed = started ? 0.3 : 0;
+        let legMove = Math.sin(tick * speed) * 10;
         ctx.beginPath();
-        ctx.moveTo(x + 15, y + h - 10); ctx.lineTo(x + 15 + legMove, y + h + 5);
-        ctx.moveTo(x + w - 15, y + h - 10); ctx.lineTo(x + w - 15 - legMove, y + h + 5);
+        ctx.moveTo(x + 15, y + h - 10); ctx.lineTo(x + 15 + legMove, y + h + 8);
+        ctx.moveTo(x + w - 15, y + h - 10); ctx.lineTo(x + w - 15 - legMove, y + h + 8);
         ctx.stroke();
     }
 
@@ -118,8 +114,8 @@
                 cabinX -= s.s;
                 if(p.x > cabinX + 80) {
                     active = false; cur++;
-                    if(cur >= stages.length) { cur = 0; document.getElementById('msg').innerText = "🏆 أسطورة! ختمتِ الـ 20 مرحلة 🏆"; }
-                    else { document.getElementById('msg').innerText = "🏡 رائع! وصلي للكوخ التالي"; }
+                    if(cur >= stages.length) cur = 0;
+                    document.getElementById('msg').innerText = "إلى المرحلة التالية";
                     overlay.style.display = 'flex';
                 }
             }
@@ -148,23 +144,12 @@
         }
 
         if(cabinX > -500) ctx.drawImage(imgs.cabin, cabinX, canvas.height/2-100, 180, 180);
-        
-        ctx.shadowBlur = 15; ctx.shadowColor = s.col;
+        drawLegs(m.x, m.y, 110, 110, false);
         ctx.drawImage(imgs[s.m], m.x, m.y, 110, 110);
-
-        obs.forEach(o => { 
-            ctx.fillStyle = s.col; ctx.shadowBlur = 10;
-            ctx.fillRect(o.x, 0, 50, o.y); ctx.fillRect(o.x, o.y+o.g, 50, canvas.height); 
-        });
-
-        ctx.shadowBlur = 20; ctx.shadowColor = "yellow";
+        obs.forEach(o => { ctx.fillStyle = s.col; ctx.fillRect(o.x, 0, 50, o.y); ctx.fillRect(o.x, o.y+o.g, 50, canvas.height); });
         items.forEach(f => ctx.drawImage(imgs.fish, f.x, f.y, 45, 45));
-
-        // رسم القطة بالأرجل الجديدة
-        ctx.shadowBlur = 15; ctx.shadowColor = "white";
-        drawCatLegs(p.x, p.y, 60, 60);
+        drawLegs(p.x, p.y, 60, 60, true);
         ctx.drawImage(imgs.cat, p.x, p.y, 60, 60);
-        ctx.shadowBlur = 0;
 
         requestAnimationFrame(loop);
     }
