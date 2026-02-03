@@ -3,38 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>مغامرة رهف والقطة السيامية</title>
+    <title>Himalayan Cat - Rahaf's World</title>
     <style>
-        body { margin: 0; overflow: hidden; background: #000; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; touch-action: none; }
-        #ui { position: absolute; top: 15px; width: 100%; text-align: center; color: white; z-index: 10; pointer-events: none; }
-        .bar { width: 75%; height: 16px; background: rgba(0,0,0,0.5); margin: 10px auto; border-radius: 20px; border: 2px solid #fff; overflow: hidden; }
-        #fill { width: 0%; height: 100%; background: linear-gradient(90deg, #2ecc71, #f1c40f); box-shadow: 0 0 10px #2ecc71; transition: width 0.3s; }
+        body { margin: 0; overflow: hidden; background: #000; font-family: sans-serif; touch-action: none; }
+        #ui { position: absolute; top: 10px; width: 100%; text-align: center; color: white; z-index: 10; pointer-events: none; }
+        /* تصغير خط السرعة ليكون غير مزعج */
+        .bar { width: 50%; height: 8px; background: rgba(255,255,255,0.1); margin: 5px auto; border-radius: 10px; border: 1px solid #fff; overflow: hidden; }
+        #fill { width: 0%; height: 100%; background: #00ffcc; }
         #overlay { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(0,0,0,0.85); display: flex; flex-direction: column; 
+            background: rgba(0,0,0,0.8); display: flex; flex-direction: column; 
             justify-content: center; align-items: center; color: white; z-index: 1000; 
         }
-        button { 
-            padding: 15px 50px; font-size: 24px; cursor: pointer; border-radius: 30px; 
-            background: #e67e22; color: white; border: none; font-weight: bold;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3); transition: 0.2s;
-        }
-        button:active { transform: scale(0.95); }
-        .info { color:#f1c40f; font-size: 20px; font-weight: bold; }
+        button { padding: 15px 40px; font-size: 22px; cursor: pointer; border-radius: 30px; background: #27ae60; color: white; border: none; font-weight: bold; }
+        .info { color:#f1c40f; font-size: 16px; font-weight: bold; text-shadow: 1px 1px #000; }
     </style>
 </head>
 <body>
 
 <div id="ui">
-    <div id="lvlName" style="font-size: 28px; text-shadow: 2px 2px #000;">المرحلة 1</div>
+    <div id="lvlName" style="font-size: 20px; font-weight: bold;">المرحلة 1</div>
     <div class="bar"><div id="fill"></div></div>
     <div class="info">🐟 الأسماك: <span id="score">0</span> | 🏁 المسافة: <span id="dist">1000</span>m</div>
 </div>
 
 <div id="overlay">
     <h1 id="msg">مغامرة القطة رهف 🐾</h1>
-    <p id="subMsg" style="font-size: 18px; margin-bottom: 20px;">ساعدي القطة للهروب من الوحوش!</p>
-    <button onclick="setupStage()">ابدئي اللعب 🐈</button>
+    <button onclick="setupStage()">انطلق الآن ✨</button>
 </div>
 
 <canvas id="c"></canvas>
@@ -48,32 +43,47 @@
     function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     window.addEventListener('resize', resize); resize();
 
-    // روابط الصور
+    // روابط الصور المحسنة (بناءً على طلبك)
     const I = {
         cat: 'https://cdn-icons-png.flaticon.com/128/616/616430.png',
         lion: 'https://cdn-icons-png.flaticon.com/128/616/616412.png',
         eagle: 'https://cdn-icons-png.flaticon.com/128/1820/1820042.png',
         croc: 'https://cdn-icons-png.flaticon.com/128/2810/2810057.png',
-        human: 'https://cdn-icons-png.flaticon.com/128/4140/4140037.png', // وحش بشري
-        mystery: 'https://cdn-icons-png.flaticon.com/128/1048/1048948.png', // شيء مجهول
+        human: 'https://cdn-icons-png.flaticon.com/128/4140/4140037.png', // مجهول/إنسان
         fish: 'https://cdn-icons-png.flaticon.com/128/603/603310.png',
+        coin: 'https://cdn-icons-png.flaticon.com/128/2489/2489714.png',
         cabin: 'https://cdn-icons-png.flaticon.com/128/2237/2237837.png'
     };
 
     const imgs = {};
     Object.keys(I).forEach(k => { imgs[k] = new Image(); imgs[k].src = I[k]; });
 
+    // الـ 20 مرحلة كما هي مع تعديل "النوع" للبيئة
     const stages = [
-        { n: "عرين الأسد الجائع", m: "lion", bg: "#4a3b22", type: "ground", s: 6 },
-        { n: "بحيرة التماسيح الغاضبة", m: "croc", bg: "#1a3a3a", type: "water", s: 7 },
-        { n: "مرتفعات النسر الكاسر", m: "eagle", bg: "#2c3e50", type: "sky", s: 8 },
-        { n: "الرجل المجهول يطاردك", m: "human", bg: "#2d3436", type: "ground", s: 9 },
-        { n: "المخلوق الفضائي الغريب", m: "mystery", bg: "#2c003e", type: "sky", s: 10 }
-        // يمكن إضافة المزيد من المراحل هنا بنفس الطريقة
+        { n: "احذر الذئب يلاحقك", m: "human", bg: "#0a1a0a", type: "ground", s: 6 },
+        { n: "مقبرة الأشباح البنفسجية", m: "human", bg: "#1a0033", type: "ground", s: 7 },
+        { n: "اهرب من النسر المفترس", m: "eagle", bg: "#87ceeb", type: "sky", s: 8 },
+        { n: "الافعى سامة وخطيرة اهرب منها", m: "human", bg: "#1a0d00", type: "ground", s: 9 },
+        { n: "التمساح المرعب يلاحقك", m: "croc", bg: "#004d4d", type: "water", s: 10 },
+        { n: "الأسد جائع اهرب بسرعة", m: "lion", bg: "#2c1e00", type: "ground", s: 11 },
+        { n: "التنين المرعب", m: "human", bg: "#200000", type: "ground", s: 12 },
+        { n: "مملكة الجليد اللامعة", m: "human", bg: "#e6fbff", type: "ground", s: 13 },
+        { n: "كوكب الفضائيين الأخضر", m: "human", bg: "#00001a", type: "ground", s: 14 },
+        { n: "بحر القروش العميقة", m: "human", bg: "#001040", type: "water", s: 15 },
+        { n: "الخفاش يطمع بك", m: "human", bg: "#0d0d0d", type: "ground", s: 15.5 },
+        { n: "العنكبوت ايضا يفكر بإلتهامك", m: "human", bg: "#1a1a00", type: "ground", s: 16 },
+        { n: "الآلي الغاضب", m: "human", bg: "#1a1a1a", type: "ground", s: 16.5 },
+        { n: "الديناصور عاد للحياة كي يأكلك", m: "human", bg: "#1a1300", type: "ground", s: 17 },
+        { n: "النمر الشرس اوووه ساعدني", m: "human", bg: "#2a1a0a", type: "ground", s: 17.5 },
+        { n: "الوحش المجهول سوف يجعلك مجهول", m: "human", bg: "#10001a", type: "ground", s: 18 },
+        { n: "احد القراصنة يريد اصطيادك", m: "human", bg: "#000a1a", type: "ground", s: 18.5 },
+        { n: "فوهة البركان المتفجر", m: "human", bg: "#2a0000", type: "ground", s: 19 },
+        { n: "محطة غزو الفضاء", m: "human", bg: "#000000", type: "ground", s: 20 },
+        { n: "المرحلة النهائية: قمة التحدي", m: "lion", bg: "#000", type: "ground", s: 22 }
     ];
 
     let cur = 0, score = 0, dist = 1000, active = false, started = false;
-    let p = { x: 100, y: 300, v: 0, rot: 0 }; 
+    let p = { x: 100, y: 300, v: 0, r: 0 }; 
     let m = { x: -150, y: 300 }; 
     let obs = [], items = [], cabinX = -500, frame = 0;
 
@@ -81,88 +91,90 @@
         overlay.style.display = 'none';
         dist = 1000; p.y = canvas.height/2; p.v = 0; m.x = -150;
         obs = []; items = []; cabinX = -500;
-        document.getElementById('lvlName').innerText = stages[cur].n;
+        document.getElementById('lvlName').innerText = `المرحلة ${cur+1}: ${stages[cur].n}`;
         active = true; started = false;
     };
 
-    function die() {
-        active = false;
-        msg.innerHTML = "أوه! أمسك بك " + stages[cur].n;
-        overlay.style.display = 'flex';
-    }
+    function die() { active = false; msg.innerHTML = "أمسك بك " + stages[cur].n; overlay.style.display = 'flex'; }
 
     function loop() {
         frame++;
         const s = stages[cur];
         
-        // رسم الخلفية (تتغير حسب المرحلة)
-        let grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
-        grad.addColorStop(0, s.bg);
-        grad.addColorStop(1, "#000");
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        // رسم البيئة
+        ctx.fillStyle = s.bg; ctx.fillRect(0, 0, canvas.width, canvas.height);
+        if(s.type === "water") { ctx.fillStyle = "rgba(0, 255, 255, 0.1)"; ctx.fillRect(0, canvas.height-100, canvas.width, 100); }
 
         if (active && started) {
-            p.v += 0.5; p.y += p.v; 
-            p.rot = Math.min(Math.PI/4, Math.max(-Math.PI/4, p.v * 0.1)); // تدوير القطة عند القفز
+            p.v += 0.45; p.y += p.v; 
+            p.r = Math.min(Math.PI/4, Math.max(-Math.PI/4, p.v * 0.1));
             dist -= s.s / 10;
 
-            // حركة الوحش حسب نوعه
-            if(s.type === "sky") { m.y = 100 + Math.sin(frame*0.05)*50; m.x = 100; }
-            else if(s.type === "water") { m.y = canvas.height - 150 + Math.sin(frame*0.1)*20; m.x = 80; }
-            else { m.y += (p.y - m.y) * 0.05; m.x = Math.min(p.x - 120, m.x + 0.2); }
+            // حركة الوحش حسب النوع
+            if(s.type === "sky") { m.y = 80; m.x = p.x - 20; } 
+            else if(s.type === "water") { m.y = canvas.height - 150; m.x = p.x - 50; }
+            else { m.y += (p.y - m.y) * 0.05; m.x = Math.min(p.x - 130, m.x + 0.3); }
 
-            // التحديات (العوائق)
-            if (dist > 50 && (obs.length === 0 || obs[obs.length-1].x < canvas.width - 350)) {
-                let h = Math.random() * (canvas.height - 300) + 50;
-                obs.push({ x: canvas.width, h: h, g: 250 });
-                items.push({ x: canvas.width + 50, y: h + 125 });
+            if (dist <= 0) {
+                if(cabinX === -500) cabinX = canvas.width;
+                cabinX -= s.s;
+                if(p.x > cabinX + 60) {
+                    active = false; cur++;
+                    if(cur >= stages.length) { msg.innerHTML = "🏆 مبروك يا رهف! أنتِ ملكة اللعبة! 🏆"; cur = 0; score = 0; }
+                    else { msg.innerHTML = "🏡 رائع! إلى المرحلة التالية!"; }
+                    overlay.style.display = 'flex';
+                }
+            }
+
+            // توليد الأسماك والكوينز
+            if (dist > 50 && (obs.length === 0 || obs[obs.length-1].x < canvas.width - 380)) {
+                let gy = Math.random() * (canvas.height - 350) + 100;
+                obs.push({ x: canvas.width, y: gy, g: 300 });
+                items.push({ x: canvas.width + 50, y: gy + 150, t: Math.random() > 0.5 ? 'fish' : 'coin' });
             }
 
             obs.forEach((o, i) => {
                 o.x -= s.s;
-                if(p.x+40 > o.x && p.x < o.x+60 && (p.y < o.h || p.y+40 > o.h+o.g)) die();
+                if(p.x+35 > o.x && p.x+10 < o.x+50 && (p.y+10 < o.y || p.y+40 > o.y+o.g)) die();
                 if(o.x < -100) obs.splice(i, 1);
             });
 
             items.forEach((f, i) => {
                 f.x -= s.s;
-                if(Math.hypot(p.x-f.x, p.y-f.y) < 50) { score += 10; items.splice(i, 1); }
+                if(Math.hypot(p.x-f.x, p.y-f.y) < 60) { score += (f.t==='fish'?100:500); items.splice(i, 1); }
             });
 
-            if(p.y > canvas.height || p.y < -50) die();
-            
+            if(p.y > canvas.height || p.y < -50 || (s.type==="ground" && p.x < m.x + 60)) die();
             document.getElementById('fill').style.width = (1 - (dist/1000))*100 + "%";
             document.getElementById('dist').innerText = Math.max(0, Math.floor(dist));
             document.getElementById('score').innerText = score;
         }
 
-        // رسم القطة مع حركة الأرجل (ScaleX يحاكي الحركة)
+        // رسم القطة بحركة أرجل
         ctx.save();
-        ctx.translate(p.x + 30, p.y + 30);
-        ctx.rotate(p.rot);
-        let legMove = Math.sin(frame * 0.2) * 5;
-        ctx.drawImage(imgs.cat, -30, -30 + legMove, 60, 60);
+        ctx.translate(p.x+32, p.y+32);
+        ctx.rotate(p.r);
+        let walk = Math.sin(frame*0.2)*5;
+        ctx.drawImage(imgs.cat, -32, -32 + walk, 65, 65);
         ctx.restore();
 
         // رسم الوحش
-        ctx.drawImage(imgs[s.m], m.x, m.y, 100, 100);
+        ctx.drawImage(imgs[s.m], m.x, m.y, 110, 110);
 
         // رسم العوائق
-        obs.forEach(o => {
-            ctx.fillStyle = "rgba(255,255,255,0.2)";
-            ctx.fillRect(o.x, 0, 60, o.h);
-            ctx.fillRect(o.x, o.h+o.g, 60, canvas.height);
-        });
+        obs.forEach(o => { ctx.fillStyle = "rgba(255,255,255,0.3)"; ctx.fillRect(o.x, 0, 50, o.y); ctx.fillRect(o.x, o.y+o.g, 50, canvas.height); });
 
-        items.forEach(f => ctx.drawImage(imgs.fish, f.x, f.y, 40, 40));
+        // رسم الأسماك والكوينز
+        items.forEach(f => ctx.drawImage(imgs[f.t], f.x, f.y, 45, 45));
+
+        if(cabinX > -500) ctx.drawImage(imgs.cabin, cabinX, canvas.height/2-100, 180, 180);
 
         requestAnimationFrame(loop);
     }
 
-    const jump = () => { if(active) { started = true; p.v = -9; } };
-    window.addEventListener('mousedown', jump);
-    window.addEventListener('touchstart', jump);
+    const start = () => { if(active) started = true; p.v = -8.5; };
+    window.addEventListener('mousedown', start);
+    window.addEventListener('touchstart', start);
     loop();
 </script>
 </body>
