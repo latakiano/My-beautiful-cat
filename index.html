@@ -3,27 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Cat Hunter - Professional Edition</title>
+    <title>Cat Pro Challenge</title>
     <style>
         body { margin: 0; overflow: hidden; background: #000; font-family: sans-serif; touch-action: none; }
         #ui { position: absolute; top: 10px; width: 100%; text-align: center; color: white; z-index: 10; pointer-events: none; }
-        .bar { width: 80%; height: 12px; background: rgba(255,255,255,0.1); margin: 5px auto; border-radius: 10px; border: 1px solid #fff; overflow: hidden; }
-        #fill { width: 0%; height: 100%; background: #00ff00; box-shadow: 0 0 10px #0f0; }
+        .bar { width: 75%; height: 10px; background: rgba(255,255,255,0.1); margin: 5px auto; border-radius: 10px; border: 1px solid #fff; overflow: hidden; }
+        #fill { width: 0%; height: 100%; background: #2ecc71; }
         #overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; z-index: 1000; }
-        button { padding: 15px 50px; font-size: 26px; cursor: pointer; border-radius: 40px; background: #e74c3c; color: white; border: 3px solid #fff; font-weight: bold; box-shadow: 0 0 20px #e74c3c; }
+        button { padding: 15px 45px; font-size: 24px; cursor: pointer; border-radius: 30px; background: #f1c40f; color: #000; border: none; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div id="ui">
-    <div id="lvlName" style="font-size: 22px; font-weight: bold; color: #f1c40f;">المرحلة 1</div>
+    <div id="lvlName" style="font-size: 22px; font-weight: bold; color: #f1c40f;"></div>
     <div class="bar"><div id="fill"></div></div>
-    <div style="font-size: 18px;">💰: <span id="score">0</span> | 🏁: <span id="dist">1000</span>m</div>
+    <div style="font-size: 16px;">💰: <span id="score">0</span> | 🏁: <span id="dist">1000</span>m</div>
 </div>
 
 <div id="overlay">
-    <h1 id="msg">جاهزة للتحدي؟ 🐾</h1>
-    <button onclick="initGame()">ابدأ الآن ✅</button>
+    <h1 id="msg">مغامرة الـ 20 مرحلة 🐾</h1>
+    <button onclick="initGame()">انطلاق ✅</button>
 </div>
 
 <canvas id="c"></canvas>
@@ -32,16 +32,16 @@
     const canvas = document.getElementById('c');
     const ctx = canvas.getContext('2d');
     const overlay = document.getElementById('overlay');
-
     let audioCtx;
+
     function playCoin() {
         if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         const t = audioCtx.currentTime;
-        const o = audioCtx.createOscillator(); const g = audioCtx.createGain();
-        o.frequency.setValueAtTime(1200, t); g.gain.setValueAtTime(0.1, t);
-        g.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
-        o.connect(g); g.connect(audioCtx.destination);
-        o.start(); o.stop(t + 0.3);
+        const o1 = audioCtx.createOscillator(), o2 = audioCtx.createOscillator(), g = audioCtx.createGain();
+        o1.frequency.setValueAtTime(950, t); o2.frequency.setValueAtTime(1200, t);
+        g.gain.setValueAtTime(0.1, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
+        o1.connect(g); o2.connect(g); g.connect(audioCtx.destination);
+        o1.start(); o2.start(); o1.stop(t + 0.4); o2.stop(t + 0.4);
     }
 
     function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
@@ -63,26 +63,26 @@
     for(let k in I) { imgs[k] = new Image(); imgs[k].src = I[k]; }
 
     const stages = [
-        {n: "1- غابة الذئاب", m: "wolf", bg: "#050505", col: "#ffff00", s: 6, gap: 300},
-        {n: "2- مقبرة الأشباح", m: "ghost", bg: "#100015", col: "#00ff00", s: 7, gap: 280},
-        {n: "3- جبال النسور", m: "eagle", bg: "#001020", col: "#ffffff", s: 7.5, gap: 270},
-        {n: "4- وادي الأفاعي", m: "snake", bg: "#100500", col: "#ffaa00", s: 8, gap: 260},
-        {n: "5- نهر التماسيح", m: "croc", bg: "#001515", col: "#00ffff", s: 8.5, gap: 250},
-        {n: "6- عرين الأسد", m: "lion", bg: "#150500", col: "#ff4400", s: 9, gap: 240},
-        {n: "7- كهف التنين", m: "dragon", bg: "#100000", col: "#ff0000", s: 10, gap: 230},
-        {n: "8- مملكة الجليد", m: "wolf", bg: "#e0f0ff", col: "#00aaff", s: 11, gap: 220},
-        {n: "9- المصنع المظلم", m: "ghost", bg: "#111", col: "#999", s: 12, gap: 210},
-        {n: "10- عالم السحر", m: "dragon", bg: "#201", col: "#f0f", s: 13, gap: 200},
-        {n: "11- الغابة السوداء", m: "snake", bg: "#020", col: "#fff", s: 14, gap: 190},
-        {n: "12- فوهة البركان", m: "lion", bg: "#300", col: "#ff0", s: 15, gap: 185},
-        {n: "13- كوكب الفضاء", m: "eagle", bg: "#002", col: "#0ff", s: 16, gap: 180},
-        {n: "14- الأعماق الزرقاء", m: "croc", bg: "#003", col: "#00f", s: 17, gap: 175},
-        {n: "15- المختبر السري", m: "ghost", bg: "#010", col: "#0f0", s: 18, gap: 170},
-        {n: "16- حافة السماء", m: "eagle", bg: "#111", col: "#ddd", s: 19, gap: 165},
-        {n: "17- وادي النمور", m: "lion", bg: "#210", col: "#fa0", s: 20, gap: 160},
-        {n: "18- مملكة الجن", m: "dragon", bg: "#102", col: "#c0f", s: 22, gap: 155},
-        {n: "19- المتاهة المظلمة", m: "wolf", bg: "#000", col: "#f00", s: 24, gap: 150},
-        {n: "20- تحدي الدولارين", m: "lion", bg: "#000", col: "#fff", s: 26, gap: 140}
+        {n: "1- غابة الذئاب", m: "wolf", bg: "#0a0a0a", col: "#f1c40f", s: 5.5, gap: 300},
+        {n: "2- مقبرة الأشباح", m: "ghost", bg: "#1a002a", col: "#2ecc71", s: 6, gap: 280},
+        {n: "3- جبال النسور", m: "eagle", bg: "#001f3f", col: "#ecf0f1", s: 6.5, gap: 270},
+        {n: "4- وادي الأفاعي", m: "snake", bg: "#1a0d00", col: "#e67e22", s: 7, gap: 260},
+        {n: "5- نهر التماسيح", m: "croc", bg: "#002b2b", col: "#1abc9c", s: 7.5, gap: 255},
+        {n: "6- عرين الأسد", m: "lion", bg: "#2d1400", col: "#e74c3c", s: 8, gap: 250},
+        {n: "7- كهف التنين", m: "dragon", bg: "#200000", col: "#c0392b", s: 8.5, gap: 245},
+        {n: "8- مملكة الجليد", m: "wolf", bg: "#f0faff", col: "#3498db", s: 9, gap: 240},
+        {n: "9- المصنع المظلم", m: "ghost", bg: "#111", col: "#95a5a6", s: 10, gap: 235},
+        {n: "10- عالم السحر", m: "dragon", bg: "#301", col: "#9b59b6", s: 11, gap: 230},
+        {n: "11- الغابة السوداء", m: "snake", bg: "#050", col: "#fff", s: 12, gap: 225},
+        {n: "12- فوهة البركان", m: "lion", bg: "#400", col: "#f39c12", s: 13, gap: 220},
+        {n: "13- كوكب الفضاء", m: "eagle", bg: "#001", col: "#1abc9c", s: 14, gap: 210},
+        {n: "14- الأعماق الزرقاء", m: "croc", bg: "#002", col: "#2980b9", s: 15, gap: 200},
+        {n: "15- المختبر السري", m: "ghost", bg: "#020", col: "#2ecc71", s: 16, gap: 195},
+        {n: "16- حافة السماء", m: "eagle", bg: "#222", col: "#bdc3c7", s: 17, gap: 190},
+        {n: "17- وادي النمور", m: "lion", bg: "#321", col: "#d35400", s: 18, gap: 185},
+        {n: "18- مملكة الجن", m: "dragon", bg: "#102", col: "#8e44ad", s: 20, gap: 180},
+        {n: "19- المتاهة المظلمة", m: "wolf", bg: "#000", col: "#f1c40f", s: 22, gap: 170},
+        {n: "20- تحدي الدولارين", m: "lion", bg: "#000", col: "#fff", s: 25, gap: 160}
     ];
 
     let cur = 0, score = 0, dist = 1000, active = false, started = false, tick = 0;
@@ -96,67 +96,50 @@
         active = true; started = false;
     };
 
-    function die() { active = false; document.getElementById('msg').innerText = "ركزي أكثر! 💥"; overlay.style.display = 'flex'; }
+    function die() { active = false; document.getElementById('msg').innerText = "انتهت المحاولة!"; overlay.style.display = 'flex'; }
 
     function loop() {
         const s = stages[cur];
         ctx.fillStyle = s.bg; ctx.fillRect(0, 0, canvas.width, canvas.height);
-
         if (active && started) {
-            tick += 1; p.v += 0.45; p.y += p.v; dist -= s.s / 10;
+            tick += 1; p.v += 0.45; p.y += p.v; dist -= s.s / 9;
             m.y += (p.y - m.y) * 0.07; m.x = Math.min(p.x - 130, m.x + 0.35);
-
             if (dist <= 0) {
                 if(cabinX === -500) cabinX = canvas.width;
                 cabinX -= s.s;
-                if(p.x > cabinX + 100) { active = false; cur++; if(cur >= stages.length) cur = 0; document.getElementById('msg').innerText = "أحسنتِ! التالي.."; overlay.style.display = 'flex'; }
+                if(p.x > cabinX + 100) { active = false; cur++; if(cur >= stages.length) cur = 0; document.getElementById('msg').innerText = "أحسنت!"; overlay.style.display = 'flex'; }
             }
-
-            if (dist > 50 && (obs.length === 0 || obs[obs.length-1].x < canvas.width - 320)) {
+            if (dist > 50 && (obs.length === 0 || obs[obs.length-1].x < canvas.width - 340)) {
                 let th = Math.random() * (canvas.height - s.gap - 100) + 50;
                 obs.push({ x: canvas.width, t: th, g: s.gap });
                 items.push({ x: canvas.width + 50, y: th + s.gap/2 });
             }
-
             obs.forEach((o, i) => {
                 o.x -= s.s;
                 if(p.x+30 > o.x && p.x+10 < o.x+50 && (p.y+10 < o.t || p.y+40 > o.t+o.g)) die();
                 if(o.x < -100) obs.splice(i, 1);
             });
-
             items.forEach((f, i) => {
                 f.x -= s.s;
                 if(Math.hypot(p.x-f.x, p.y-f.y) < 50) { score += 10; items.splice(i, 1); playCoin(); }
             });
-
             if(p.y > canvas.height || p.y < -50 || p.x < m.x + 50) die();
             document.getElementById('fill').style.width = (1 - (dist/1000))*100 + "%";
             document.getElementById('dist').innerText = Math.max(0, Math.floor(dist));
             document.getElementById('score').innerText = score;
         }
-
         if(cabinX > -500) ctx.drawImage(imgs.cabin, cabinX, canvas.height/2-100, 180, 180);
-
-        // --- رسم الوحش (الذئب/الشبح) بحيث ينظر للقطة ويركض ---
         ctx.save();
-        let monsterW = 120, monsterH = 120;
-        let monsterY = m.y + Math.sin(tick * 0.2) * 5; // حركة اهتزاز للركض
-        ctx.translate(m.x + monsterW, monsterY);
-        ctx.scale(-1, 1); // عكس الصورة لتنظر للجهة اليمنى (باتجاه القطة)
-        ctx.drawImage(imgs[s.m], 0, 0, monsterW, monsterH);
+        ctx.translate(m.x + 120, m.y + Math.sin(tick * 0.2) * 6);
+        ctx.scale(-1, 1);
+        ctx.drawImage(imgs[s.m], 0, 0, 120, 120);
         ctx.restore();
-
         obs.forEach(o => { ctx.fillStyle = s.col; ctx.fillRect(o.x, 0, 50, o.t); ctx.fillRect(o.x, o.t+o.g, 50, canvas.height); });
         items.forEach(f => ctx.drawImage(imgs.fish, f.x, f.y, 40, 40));
-        
-        // حركة القطة (اهتزاز طبيعي)
-        let catBounce = Math.sin(tick * 0.3) * 4;
-        ctx.drawImage(imgs.cat, p.x, p.y + (started ? catBounce : 0), 55, 55);
-
+        ctx.drawImage(imgs.cat, p.x, p.y + (started ? Math.sin(tick * 0.3) * 4 : 0), 55, 55);
         requestAnimationFrame(loop);
     }
-
-    const tap = (e) => { if(active) { started = true; p.v = -8; if(e.type === 'touchstart') e.preventDefault(); } };
+    const tap = (e) => { if(active) { started = true; p.v = -8.5; if(e.type === 'touchstart') e.preventDefault(); } };
     window.addEventListener('mousedown', tap);
     window.addEventListener('touchstart', tap, {passive: false});
     loop();
