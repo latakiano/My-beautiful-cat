@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Himalayan Cat - Mastered</title>
+    <title>Himalayan Cat - Original 20 Stages</title>
     <style>
         body { margin: 0; overflow: hidden; background: #000; font-family: sans-serif; touch-action: none; }
         #ui { position: absolute; top: 15px; width: 100%; text-align: center; color: white; z-index: 10; pointer-events: none; }
@@ -27,11 +27,12 @@
 <div id="ui">
     <div id="lvlName" style="font-size: 26px; font-weight: bold; color: #00f2ff;">المرحلة 1</div>
     <div class="bar"><div id="fill"></div></div>
-    <div class="info">🐟 <span id="score">0</span> | 🏁 <span id="dist">1000</span>m</div>
+    <div class="info">🐟 الأسماك: <span id="score">0</span> | 🏁 المسافة: <span id="dist">1000</span>m</div>
 </div>
 
 <div id="overlay">
     <h1 id="msg">مغامرة الـ 20 مرحلة 🐾</h1>
+    <p id="subMsg" style="color: #00ffcc;">ساعدي القطة رهف للهروب من الوحوش!</p>
     <button onclick="setupStage()"> انطلق الآن ✨</button>
 </div>
 
@@ -46,15 +47,17 @@
     function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     window.addEventListener('resize', resize); resize();
 
-    // الصور (القطة كاملة والوحوش كما طلبت)
+    // التعديل 1: روابط الصور الجديدة (القطة كاملة + وحوش متنوعة)
     const I = {
         cat: 'https://cdn-icons-png.flaticon.com/128/6824/6824410.png', 
-        wolf: 'https://cdn-icons-png.flaticon.com/128/2353/2353678.png',
         lion: 'https://cdn-icons-png.flaticon.com/128/616/616412.png',
+        wolf: 'https://cdn-icons-png.flaticon.com/128/2353/2353678.png',
         eagle: 'https://cdn-icons-png.flaticon.com/128/1820/1820042.png',
         croc: 'https://cdn-icons-png.flaticon.com/128/2810/2810057.png',
         shark: 'https://cdn-icons-png.flaticon.com/128/2056/2056345.png',
-        dragon: 'https://cdn-icons-png.flaticon.com/128/2497/2497607.png',
+        ghost: 'https://cdn-icons-png.flaticon.com/128/1048/1048955.png',
+        alien: 'https://cdn-icons-png.flaticon.com/128/1946/1946467.png',
+        robot: 'https://cdn-icons-png.flaticon.com/128/2056/2056360.png',
         fish: 'https://cdn-icons-png.flaticon.com/128/603/603310.png',
         cabin: 'https://cdn-icons-png.flaticon.com/128/2237/2237837.png'
     };
@@ -62,14 +65,28 @@
     const imgs = {};
     Object.keys(I).forEach(k => { imgs[k] = new Image(); imgs[k].src = I[k]; });
 
-    // الـ 20 مرحلة بمنطقك الأصلي
+    // الـ 20 مرحلة كما صممتها أنت بالضبط مع توزيع الوحوش عليها
     const stages = [
-        { n: "عرين الأسد", m: "lion", bg: "#2c1e00", col: "#e74c3c", s: 6 },
-        { n: "بحيرة التمساح", m: "croc", bg: "#002b2b", col: "#1abc9c", s: 7 },
-        { n: "مرتفعات النسر", m: "eagle", bg: "#001a33", col: "#33ccff", s: 8 },
-        { n: "أعماق القرش", m: "shark", bg: "#001040", col: "#3498db", s: 9 },
-        { n: "هجوم التنين", m: "dragon", bg: "#200000", col: "#ff0000", s: 10 },
-        // ... سيكرر الكود باقي الـ 20 مرحلة بنفس المنطق
+        { n: "احذر الذئب يلاحقك", m: "wolf", bg: "#0a1a0a", col: "#f1c40f", s: 6 },
+        { n: "مقبرة الأشباح البنفسجية", m: "ghost", bg: "#1a0033", col: "#9b59b6", s: 7 },
+        { n: "اهرب من النسر المفترس", m: "eagle", bg: "#001a33", col: "#33ccff", s: 8 },
+        { n: "الافعى سامة وخطيرة اهرب منها", m: "wolf", bg: "#1a0d00", col: "#e67e22", s: 9 },
+        { n: "التمساح المرعب يلاحقك", m: "croc", bg: "#002b2b", col: "#1abc9c", s: 10 },
+        { n: "الأسد جائع اهرب بسرعة", m: "lion", bg: "#2c1e00", col: "#e74c3c", s: 11 },
+        { n: "التنين المرعب", m: "lion", bg: "#200000", col: "#ff0000", s: 12 },
+        { n: "مملكة الجليد اللامعة", m: "wolf", bg: "#e6fbff", col: "#00d4ff", s: 13 },
+        { n: "كوكب الفضائيين الأخضر", m: "alien", bg: "#00001a", col: "#00ffcc", s: 14 },
+        { n: "بحر القروش العميقة", m: "shark", bg: "#001040", col: "#4da6ff", s: 15 },
+        { n: "الخفاش يطمع بك", m: "ghost", bg: "#0d0d0d", col: "#808080", s: 15.5 },
+        { n: "العنكبوت ايضا يفكر بإلتهامك", m: "ghost", bg: "#1a1a00", col: "#ff33f6", s: 16 },
+        { n: "الآلي الغاضب", m: "robot", bg: "#1a1a1a", col: "#00ff00", s: 16.5 },
+        { n: "الديناصور عاد للحياة كي يأكلك", m: "wolf", bg: "#1a1300", col: "#ffd700", s: 17 },
+        { n: "النمر الشرس اوووه ساعدني", m: "lion", bg: "#2a1a0a", col: "#ff9933", s: 17.5 },
+        { n: "الوحش المجهول سوف يجعلك مجهول", m: "alien", bg: "#10001a", col: "#ff0066", s: 18 },
+        { n: "احد القراصنة يريد اصطيادك", m: "wolf", bg: "#000a1a", col: "#ffffff", s: 18.5 },
+        { n: "فوهة البركان المتفجر", m: "lion", bg: "#2a0000", col: "#ff4500", s: 19 },
+        { n: "محطة غزو الفضاء", m: "robot", bg: "#000000", col: "#cc00ff", s: 20 },
+        { n: "المرحلة النهائية: قمة التحدي", m: "lion", bg: "#000", col: "#ffd700", s: 22 }
     ];
 
     let cur = 0, score = 0, dist = 1000, active = false, started = false;
@@ -78,15 +95,15 @@
     window.setupStage = function() {
         overlay.style.display = 'none';
         dist = 1000; p.y = canvas.height/2; p.v = 0; m.x = -150;
-        obs = []; items = []; cabinX = -500;
-        document.getElementById('lvlName').innerText = stages[cur % stages.length].n;
+        obs = []; items = [];
+        document.getElementById('lvlName').innerText = stages[cur].n;
         active = true; started = false;
     };
 
-    function die() { active = false; msg.innerText = "أمسك بك الوحش! 🙀"; overlay.style.display = 'flex'; }
+    function die() { active = false; overlay.style.display = 'flex'; }
 
     function loop() {
-        const s = stages[cur % stages.length];
+        const s = stages[cur];
         ctx.fillStyle = s.bg; ctx.fillRect(0, 0, canvas.width, canvas.height);
 
         if (active && started) {
@@ -101,7 +118,7 @@
 
             obs.forEach((o, i) => {
                 o.x -= s.s;
-                if(p.x+50 > o.x && p.x+10 < o.x+50 && (p.y+10 < o.y || p.y+50 > o.y+o.g)) die();
+                if(p.x+50 > o.x && p.x < o.x+50 && (p.y < o.y || p.y+50 > o.y+o.g)) die();
             });
 
             items.forEach((f, i) => {
@@ -111,24 +128,16 @@
 
             if(p.y > canvas.height || p.y < -50 || p.x < m.x + 60) die();
             document.getElementById('fill').style.width = (1 - (dist/1000))*100 + "%";
-            document.getElementById('dist').innerText = Math.max(0, Math.floor(dist));
             document.getElementById('score').innerText = score;
         }
 
-        // رسم الوحش
         ctx.drawImage(imgs[s.m], m.x, m.y, 110, 110);
-
-        // رسم الأعمدة الملونة الأصلية
         obs.forEach(o => { 
-            ctx.fillStyle = s.col;
+            ctx.fillStyle = s.col; 
             ctx.fillRect(o.x, 0, 50, o.y); 
             ctx.fillRect(o.x, o.y+o.g, 50, canvas.height); 
         });
-
-        // رسم الأسماك
         items.forEach(f => ctx.drawImage(imgs.fish, f.x, f.y, 55, 55));
-
-        // رسم القطة (كاملة الأرجل)
         ctx.drawImage(imgs.cat, p.x, p.y, 75, 75);
 
         requestAnimationFrame(loop);
