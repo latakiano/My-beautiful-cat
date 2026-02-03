@@ -3,27 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Cat Challenge Pro - 20 Stages</title>
+    <title>Cat Challenge Master - 20 Stages</title>
     <style>
         body { margin: 0; overflow: hidden; background: #000; font-family: 'Segoe UI', sans-serif; touch-action: none; }
         #ui { position: absolute; top: 10px; width: 100%; text-align: center; color: white; z-index: 10; pointer-events: none; }
         .bar { width: 70%; height: 12px; background: rgba(255,255,255,0.1); margin: 5px auto; border-radius: 10px; border: 1px solid #fff; overflow: hidden; }
-        #fill { width: 0%; height: 100%; background: linear-gradient(90deg, #0f0, #ff0); }
-        #overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; z-index: 1000; }
-        button { padding: 15px 40px; font-size: 24px; cursor: pointer; border-radius: 30px; background: #e74c3c; color: white; border: none; font-weight: bold; }
+        #fill { width: 0%; height: 100%; background: linear-gradient(90deg, #0f0, #ff0); transition: width 0.2s; }
+        #overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; z-index: 1000; }
+        button { padding: 15px 45px; font-size: 26px; cursor: pointer; border-radius: 35px; background: #2ecc71; color: white; border: none; font-weight: bold; box-shadow: 0 0 20px #2ecc71; }
     </style>
 </head>
 <body>
 
 <div id="ui">
-    <div id="lvlName" style="font-size: 22px; font-weight: bold; color: #f1c40f;"></div>
+    <div id="lvlName" style="font-size: 24px; font-weight: bold; color: #f1c40f; text-shadow: 0 0 10px #000;"></div>
     <div class="bar"><div id="fill"></div></div>
-    <div style="font-size: 14px;">🐟: <span id="score">0</span> | 🏁: <span id="dist">1000</span>m</div>
+    <div style="font-size: 16px; font-weight: bold;">💰: <span id="score">0</span> | 🏁: <span id="dist">1000</span>m</div>
 </div>
 
 <div id="overlay">
     <h1 id="msg">مغامرة الـ 20 مرحلة 🐾</h1>
-    <p id="subMsg">مستعد للتحدي؟</p>
+    <p id="subMsg" style="color: #0ff;">تجاوز المرحلة الثالثة للوصول للاحتراف!</p>
     <button onclick="initGame()">دخول اللعبة ✅</button>
 </div>
 
@@ -34,24 +34,30 @@
     const ctx = canvas.getContext('2d');
     const overlay = document.getElementById('overlay');
 
-    // --- نظام الصوت المدمج ---
+    // --- نظام الصوت المتطور ---
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
     let audioCtx;
-    function playSound(freq, type, duration) {
+    function playSound(freq, type, duration, vol = 0.1) {
         if(!audioCtx) audioCtx = new AudioCtx();
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
         osc.type = type;
         osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+        gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
         osc.connect(gain); gain.connect(audioCtx.destination);
         osc.start(); osc.stop(audioCtx.currentTime + duration);
     }
 
-    const playWin = () => { [523, 659, 783, 1046].forEach((f, i) => setTimeout(() => playSound(f, 'triangle', 0.5), i * 150)); };
-    const playJump = () => playSound(400, 'sine', 0.1);
-    const playHurry = () => { if(Math.random() > 0.9) playSound(150, 'sawtooth', 0.1); };
+    // رنة النقود (صوت ثنائي التردد للواقعية)
+    const playCoin = () => {
+        playSound(900, 'sine', 0.2, 0.2);
+        setTimeout(() => playSound(1500, 'sine', 0.3, 0.1), 50);
+    };
+
+    const playWin = () => { [523, 659, 783, 1046].forEach((f, i) => setTimeout(() => playSound(f, 'square', 0.4), i * 100)); };
+    const playJump = () => playSound(300, 'triangle', 0.15);
+    const playHurry = () => { if(Math.random() > 0.96) playSound(100, 'sawtooth', 0.15, 0.05); };
 
     function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     window.addEventListener('resize', resize); resize();
@@ -72,26 +78,26 @@
     for(let k in I) { imgs[k] = new Image(); imgs[k].src = I[k]; }
 
     const stages = [
-        {n: "غابة الذئاب", m: "wolf", bg: "#0a0a0a", col: "#FFFF00", s: 6},
-        {n: "مقبرة الأشباح", m: "ghost", bg: "#1a002a", col: "#00FF00", s: 7},
-        {n: "جبال النسور", m: "eagle", bg: "#001f3f", col: "#FFFFFF", s: 8},
-        {n: "وادي الأفاعي", m: "snake", bg: "#1a0d00", col: "#FF8C00", s: 9},
-        {n: "نهر التماسيح", m: "croc", bg: "#002b2b", col: "#40E0D0", s: 10},
-        {n: "عرين الأسد", m: "lion", bg: "#2d1400", col: "#FF4500", s: 11},
-        {n: "كهف التنين", m: "dragon", bg: "#200000", col: "#FF0000", s: 12},
-        {n: "مملكة الجليد", m: "wolf", bg: "#f0faff", col: "#00d4ff", s: 13},
-        {n: "المصنع المظلم", m: "ghost", bg: "#111", col: "#95a5a6", s: 14},
-        {n: "عالم السحر", m: "dragon", bg: "#301", col: "#ff33f6", s: 15},
-        {n: "الغابة السوداء", m: "snake", bg: "#050", col: "#fff", s: 16},
-        {n: "فوهة البركان", m: "lion", bg: "#400", col: "#ff4500", s: 17},
-        {n: "كوكب الفضاء", m: "eagle", bg: "#001", col: "#0ff", s: 18},
-        {n: "الأعماق الزرقاء", m: "croc", bg: "#002", col: "#0055ff", s: 19},
-        {n: "المختبر السري", m: "ghost", bg: "#020", col: "#0f0", s: 20},
-        {n: "حافة السماء", m: "eagle", bg: "#222", col: "#eee", s: 21},
-        {n: "وادي النمور", m: "lion", bg: "#321", col: "#fa0", s: 22},
-        {n: "مملكة الجن", m: "dragon", bg: "#102", col: "#c0f", s: 23, gap: 190},
-        {n: "المتاهة المظلمة", m: "wolf", bg: "#000", col: "#f00", s: 25, gap: 170},
-        {n: "تحدي الدولارين", m: "lion", bg: "#101", col: "#fff", s: 28, gap: 150}
+        {n: "1- غابة الذئاب", m: "wolf", bg: "#0a0a0a", col: "#FFFF00", s: 5, gap: 280},
+        {n: "2- مقبرة الأشباح", m: "ghost", bg: "#1a002a", col: "#00FF00", s: 6, gap: 270},
+        {n: "3- جبال النسور", m: "eagle", bg: "#001f3f", col: "#FFFFFF", s: 7, gap: 260},
+        {n: "4- وادي الأفاعي", m: "snake", bg: "#1a0d00", col: "#FF8C00", s: 8, gap: 250},
+        {n: "5- نهر التماسيح", m: "croc", bg: "#002b2b", col: "#40E0D0", s: 9, gap: 240},
+        {n: "6- عرين الأسد", m: "lion", bg: "#2d1400", col: "#FF4500", s: 10, gap: 230},
+        {n: "7- كهف التنين", m: "dragon", bg: "#200000", col: "#FF0000", s: 11, gap: 220},
+        {n: "8- مملكة الجليد", m: "wolf", bg: "#f0faff", col: "#00d4ff", s: 12, gap: 215},
+        {n: "9- المصنع المظلم", m: "ghost", bg: "#111", col: "#95a5a6", s: 13, gap: 210},
+        {n: "10- عالم السحر", m: "dragon", bg: "#301", col: "#ff33f6", s: 14, gap: 205},
+        {n: "11- الغابة السوداء", m: "snake", bg: "#050", col: "#fff", s: 15, gap: 200},
+        {n: "12- فوهة البركان", m: "lion", bg: "#400", col: "#ff4500", s: 16, gap: 195},
+        {n: "13- كوكب الفضاء", m: "eagle", bg: "#001", col: "#0ff", s: 17, gap: 190},
+        {n: "14- الأعماق الزرقاء", m: "croc", bg: "#002", col: "#0055ff", s: 18, gap: 185},
+        {n: "15- المختبر السري", m: "ghost", bg: "#020", col: "#0f0", s: 19, gap: 180},
+        {n: "16- حافة السماء", m: "eagle", bg: "#222", col: "#eee", s: 20, gap: 175},
+        {n: "17- وادي النمور", m: "lion", bg: "#321", col: "#fa0", s: 21, gap: 170},
+        {n: "18- مملكة الجن", m: "dragon", bg: "#102", col: "#c0f", s: 23, gap: 165},
+        {n: "19- المتاهة المظلمة", m: "wolf", bg: "#000", col: "#f00", s: 25, gap: 160},
+        {n: "20- تحدي الدولارين", m: "lion", bg: "#101", col: "#fff", s: 28, gap: 150}
     ];
 
     let cur = 0, score = 0, dist = 1000, active = false, started = false, tick = 0;
@@ -105,15 +111,16 @@
         active = true; started = false;
     };
 
-    function die() { active = false; playSound(100, 'sawtooth', 0.5); document.getElementById('msg').innerText = "سقطت القطة!"; overlay.style.display = 'flex'; }
+    function die() { active = false; playSound(80, 'sawtooth', 0.6, 0.2); document.getElementById('msg').innerText = "انتهت المحاولة!"; overlay.style.display = 'flex'; }
 
     function drawCatLegs(x, y, w, h, t) {
         if(!started) return;
         ctx.strokeStyle = "#fff"; ctx.lineWidth = 3;
-        let legMove = Math.sin(t * 0.4) * 10;
+        let speed = 0.45;
+        let legMove = Math.sin(t * speed) * 12;
         ctx.beginPath();
-        ctx.moveTo(x + 15, y + h - 10); ctx.lineTo(x + 15 + legMove, y + h + 5);
-        ctx.moveTo(x + w - 15, y + h - 10); ctx.lineTo(x + w - 15 - legMove, y + h + 5);
+        ctx.moveTo(x + 15, y + h - 10); ctx.lineTo(x + 15 + legMove, y + h + 6);
+        ctx.moveTo(x + w - 15, y + h - 10); ctx.lineTo(x + w - 15 - legMove, y + h + 6);
         ctx.stroke();
     }
 
@@ -122,56 +129,65 @@
         ctx.fillStyle = s.bg; ctx.fillRect(0, 0, canvas.width, canvas.height);
 
         if (active && started) {
-            tick += 1; p.v += 0.5; p.y += p.v; dist -= s.s / 8;
-            m.y += (p.y - m.y) * 0.06; m.x = Math.min(p.x - 120, m.x + 0.4);
-            playHurry(); // موسيقى الخوف (نغمات عشوائية منخفضة)
+            tick += 1; p.v += 0.48; p.y += p.v; dist -= s.s / 8;
+            m.y += (p.y - m.y) * 0.06; m.x = Math.min(p.x - 120, m.x + 0.35);
+            playHurry();
 
             if (dist <= 0) {
                 if(cabinX === -500) { cabinX = canvas.width; playWin(); }
                 cabinX -= s.s;
-                if(p.x > cabinX + 100) {
+                if(p.x > cabinX + 110) {
                     active = false; cur++;
                     if(cur >= stages.length) cur = 0;
-                    document.getElementById('msg').innerText = "رائع! إلى المرحلة التالية";
+                    document.getElementById('msg').innerText = "نجحت! المرحلة التالية";
                     overlay.style.display = 'flex';
                 }
             }
 
-            if (dist > 50 && (obs.length === 0 || obs[obs.length-1].x < canvas.width - 320)) {
-                let gap = s.gap || 250;
-                let th = Math.random() * (canvas.height - gap - 100) + 50;
-                obs.push({ x: canvas.width, t: th, g: gap });
-                items.push({ x: canvas.width + 50, y: th + gap/2 });
+            if (dist > 60 && (obs.length === 0 || obs[obs.length-1].x < canvas.width - 340)) {
+                let th = Math.random() * (canvas.height - s.gap - 120) + 60;
+                obs.push({ x: canvas.width, t: th, g: s.gap });
+                items.push({ x: canvas.width + 60, y: th + s.gap/2 });
             }
 
             obs.forEach((o, i) => {
                 o.x -= s.s;
-                if(p.x+35 > o.x && p.x+10 < o.x+50 && (p.y+10 < o.t || p.y+40 > o.t+o.g)) die();
+                if(p.x+35 > o.x && p.x+10 < o.x+50 && (p.y+10 < o.t || p.y+42 > o.t+o.g)) die();
                 if(o.x < -100) obs.splice(i, 1);
             });
 
             items.forEach((f, i) => {
                 f.x -= s.s;
-                if(Math.hypot(p.x-f.x, p.y-f.y) < 50) { score += 100; items.splice(i, 1); playSound(800, 'sine', 0.05); }
+                if(Math.hypot(p.x-f.x, p.y-f.y) < 55) { score += 10; items.splice(i, 1); playCoin(); }
             });
 
-            if(p.y > canvas.height || p.y < -50 || p.x < m.x + 50) die();
+            if(p.y > canvas.height || p.y < -60 || p.x < m.x + 50) die();
             document.getElementById('fill').style.width = (1 - (dist/1000))*100 + "%";
             document.getElementById('dist').innerText = Math.max(0, Math.floor(dist));
             document.getElementById('score').innerText = score;
         }
 
         if(cabinX > -500) ctx.drawImage(imgs.cabin, cabinX, canvas.height/2-100, 180, 180);
+        ctx.shadowBlur = 10; ctx.shadowColor = s.col;
         ctx.drawImage(imgs[s.m], m.x, m.y, 110, 110);
         obs.forEach(o => { ctx.fillStyle = s.col; ctx.fillRect(o.x, 0, 50, o.t); ctx.fillRect(o.x, o.t+o.g, 50, canvas.height); });
-        items.forEach(f => ctx.drawImage(imgs.fish, f.x, f.y, 40, 40));
+        ctx.shadowBlur = 15; ctx.shadowColor = "gold";
+        items.forEach(f => ctx.drawImage(imgs.fish, f.x, f.y, 42, 42));
+        ctx.shadowBlur = 0;
+        
         drawCatLegs(p.x, p.y, 55, 55, tick);
         ctx.drawImage(imgs.cat, p.x, p.y, 55, 55);
 
         requestAnimationFrame(loop);
     }
 
-    const tap = (e) => { if(active) { started = true; p.v = -8.5; playJump(); if(e.type === 'touchstart') e.preventDefault(); } };
+    const tap = (e) => { 
+        if(active) { 
+            started = true; p.v = -8.2; 
+            if(audioCtx) playJump(); 
+            if(e.type === 'touchstart') e.preventDefault(); 
+        } 
+    };
     window.addEventListener('mousedown', tap);
     window.addEventListener('touchstart', tap, {passive: false});
     loop();
